@@ -1,0 +1,16 @@
+# Environment variables
+.env
+*.env
+
+# Backend env
+backend/.env
+
+# Frontend env
+frontend/.env
+frontend/.env.local
+
+# Node modules
+node_modules/
+
+# Next.js
+.next/
