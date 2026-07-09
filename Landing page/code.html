@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Git AI | Your AI Engineering Manager</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@100..900&amp;family=Hanken+Grotesk:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#131313",
+                        "surface-dim": "#131313",
+                        "surface-bright": "#393939",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-container-low": "#1b1b1b",
+                        "surface-container": "#1f1f1f",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-highest": "#353535",
+                        "on-surface": "#e2e2e2",
+                        "on-surface-variant": "#c4c7c8",
+                        "outline": "#8e9192",
+                        "outline-variant": "#444748",
+                        "primary": "#ffffff",
+                        "on-primary": "#2f3131",
+                        "primary-container": "#e2e2e2",
+                        "on-primary-container": "#636565"
+                    },
+                    "spacing": {
+                        "margin-mobile": "24px",
+                        "margin-desktop": "80px",
+                        "unit": "8px",
+                        "container-max": "1440px",
+                        "gutter": "32px",
+                        "section-gap": "160px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Sora", "sans-serif"],
+                        "display-hero": ["Sora", "sans-serif"],
+                        "body-lg": ["Hanken Grotesk", "sans-serif"],
+                        "label-mono": ["JetBrains Mono", "monospace"],
+                        "headline-md": ["Sora", "sans-serif"],
+                        "body-md": ["Hanken Grotesk", "sans-serif"]
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.5rem",
+                        "xl": "1rem",
+                        "2xl": "1.5rem",
+                        "3xl": "2rem"
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #000000;
+            color: #e2e2e2;
+            overflow-x: hidden;
+            font-family: 'Hanken Grotesk', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-primary {
+            background: #ffffff;
+            color: #000000;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.4);
+            transform: scale(1.02);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .hero-gradient {
+            background: linear-gradient(to bottom, #ffffff 0%, #a1a1a1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .step-number {
+            font-family: 'JetBrains Mono', monospace;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-white selection:text-black">
+<!-- Fixed Background -->
+<div class="fixed inset-0 z-0">
+<img alt="Background" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6MC5APoSyfVWEIRGRo1YqCwaodjucolstbXegGdioBlv8JZBVAeDxcI99cUcC9asZZ9-Wz-yyZXI8dZcVGQRksr1BpTPC2HYpKTA8PE6XRqK2fTxX2ACw6FpzqZ26b3GLgiouhtGorNmLKY0OO0ATO87miyODUc28YzOlaJinyg4ImN_QIasHgKKtuNWq6z5GLT5Ilr0-beRPapc-PCNZLWw7GW2a6wS-52mNLoxvmxQ7YMgQPsxj"/>
+<div class="absolute inset-0 bg-black/60 backdrop-blur-xl"></div>
+</div>
+<!-- Header -->
+<header class="fixed top-0 left-0 right-0 z-50 px-margin-mobile md:px-margin-desktop py-4">
+<nav class="max-w-container-max mx-auto flex items-center justify-between glass-panel px-8 py-4 rounded-full">
+<div class="flex items-center gap-3 group cursor-pointer">
+<div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center transition-transform group-hover:rotate-12">
+<span class="material-symbols-outlined text-black font-bold">smart_toy</span>
+</div>
+<span class="font-headline-md text-xl font-bold tracking-tighter text-white">Git AI</span>
+</div>
+<div class="hidden md:flex items-center gap-10">
+<a class="font-label-mono text-xs uppercase tracking-widest text-white hover:text-primary transition-colors" href="#">Platform</a>
+<a class="font-label-mono text-xs uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors" href="#">Solutions</a>
+<a class="font-label-mono text-xs uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors" href="#">Docs</a>
+</div>
+<button class="glass-card px-6 py-2 rounded-full font-label-mono text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-white/10">
+<span class="material-symbols-outlined text-sm">login</span>
+                Sign in with GitHub
+            </button>
+</nav>
+</header>
+<main class="relative z-10">
+<!-- Hero Section -->
+<section class="pt-48 pb-32 px-margin-mobile md:px-margin-desktop text-center">
+<div class="max-w-5xl mx-auto">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel mb-8">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+</span>
+<span class="font-label-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Powered by LM Studio &amp; GitHub API</span>
+</div>
+<h1 class="font-display-hero text-6xl md:text-8xl font-black mb-8 leading-[1.1] tracking-tight hero-gradient text-glow">
+                    Your AI<br/>Engineering Manager
+                </h1>
+<p class="font-body-lg text-xl md:text-2xl text-on-surface-variant max-w-3xl mx-auto mb-12 leading-relaxed">
+                    Git AI analyzes your repositories, predicts priority projects, generates complete development plans, and commits real changes — autonomously.
+                </p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+<button class="btn-primary w-full sm:w-auto px-10 py-5 rounded-2xl font-headline-md text-lg flex items-center justify-center gap-3">
+<span class="material-symbols-outlined">terminal</span>
+                        Connect GitHub &amp; Start
+                    </button>
+<button class="glass-card w-full sm:w-auto px-10 py-5 rounded-2xl font-headline-md text-lg flex items-center justify-center gap-3">
+                        See how it works
+                    </button>
+</div>
+</div>
+</section>
+<!-- Features Grid -->
+<section class="py-32 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Feature 1 -->
+<div class="glass-card p-10 rounded-3xl flex flex-col h-full">
+<div class="text-4xl mb-8">🔍</div>
+<h3 class="font-headline-md text-2xl text-white mb-4">Repository Scanner</h3>
+<p class="font-body-md text-on-surface-variant leading-relaxed">Deep scans all your GitHub repos — commits, tests, docs, issues, and languages to build a complete mental map of your stack.</p>
+</div>
+<!-- Feature 2 -->
+<div class="glass-card p-10 rounded-3xl flex flex-col h-full">
+<div class="text-4xl mb-8">🧠</div>
+<h3 class="font-headline-md text-2xl text-white mb-4">ML Priority Engine</h3>
+<p class="font-body-md text-on-surface-variant leading-relaxed">Advanced Random Forest models predict which project needs your attention most based on velocity and technical debt.</p>
+</div>
+<!-- Feature 3 -->
+<div class="glass-card p-10 rounded-3xl flex flex-col h-full">
+<div class="text-4xl mb-8">📋</div>
+<h3 class="font-headline-md text-2xl text-white mb-4">Daily AI Planner</h3>
+<p class="font-body-md text-on-surface-variant leading-relaxed">LM Studio generates today's development tasks with precise implementation steps, localized to your hardware.</p>
+</div>
+<!-- Feature 4 -->
+<div class="glass-card p-10 rounded-3xl flex flex-col h-full">
+<div class="text-4xl mb-8">💻</div>
+<h3 class="font-headline-md text-2xl text-white mb-4">Code Generation</h3>
+<p class="font-body-md text-on-surface-variant leading-relaxed">AI generates code snippets and full implementation guidance per task, ensuring patterns remain consistent across your codebase.</p>
+</div>
+<!-- Feature 5 -->
+<div class="glass-card p-10 rounded-3xl flex flex-col h-full">
+<div class="text-4xl mb-8">🚀</div>
+<h3 class="font-headline-md text-2xl text-white mb-4">Auto Commit &amp; Push</h3>
+<p class="font-body-md text-on-surface-variant leading-relaxed">AI writes the commit message. You approve. Git AI commits and pushes directly to your branch.</p>
+</div>
+<!-- Feature 6 -->
+<div class="glass-card p-10 rounded-3xl flex flex-col h-full">
+<div class="text-4xl mb-8">📊</div>
+<h3 class="font-headline-md text-2xl text-white mb-4">Health Dashboard</h3>
+<p class="font-body-md text-on-surface-variant leading-relaxed">Portfolio health score, activity charts, and AI portfolio insights updated in real-time as your team builds.</p>
+</div>
+</div>
+</section>
+<!-- How It Works Timeline -->
+<section class="py-32 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="text-center mb-20">
+<h2 class="font-headline-lg text-4xl md:text-5xl text-white mb-6">Autonomous Workflow</h2>
+<p class="text-on-surface-variant font-body-lg">Five steps to engineering excellence.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-5 gap-8">
+<div class="relative">
+<div class="glass-card p-8 rounded-2xl h-full flex flex-col items-center text-center">
+<div class="step-number w-12 h-12 rounded-full flex items-center justify-center text-white font-bold mb-6">01</div>
+<h4 class="font-headline-md text-lg text-white mb-3">Sync</h4>
+<p class="text-sm text-on-surface-variant">Connect your GitHub organization securely.</p>
+</div>
+<div class="hidden md:block absolute top-1/2 -right-4 translate-x-1/2 w-8 h-px bg-white/20"></div>
+</div>
+<div class="relative">
+<div class="glass-card p-8 rounded-2xl h-full flex flex-col items-center text-center">
+<div class="step-number w-12 h-12 rounded-full flex items-center justify-center text-white font-bold mb-6">02</div>
+<h4 class="font-headline-md text-lg text-white mb-3">Analyze</h4>
+<p class="text-sm text-on-surface-variant">ML engine parses history and debt metrics.</p>
+</div>
+<div class="hidden md:block absolute top-1/2 -right-4 translate-x-1/2 w-8 h-px bg-white/20"></div>
+</div>
+<div class="relative">
+<div class="glass-card p-8 rounded-2xl h-full flex flex-col items-center text-center">
+<div class="step-number w-12 h-12 rounded-full flex items-center justify-center text-white font-bold mb-6">03</div>
+<h4 class="font-headline-md text-lg text-white mb-3">Prioritize</h4>
+<p class="text-sm text-on-surface-variant">Receive AI-ranked task list every morning.</p>
+</div>
+<div class="hidden md:block absolute top-1/2 -right-4 translate-x-1/2 w-8 h-px bg-white/20"></div>
+</div>
+<div class="relative">
+<div class="glass-card p-8 rounded-2xl h-full flex flex-col items-center text-center">
+<div class="step-number w-12 h-12 rounded-full flex items-center justify-center text-white font-bold mb-6">04</div>
+<h4 class="font-headline-md text-lg text-white mb-3">Implement</h4>
+<p class="text-sm text-on-surface-variant">Approve generated code or refactor plans.</p>
+</div>
+<div class="hidden md:block absolute top-1/2 -right-4 translate-x-1/2 w-8 h-px bg-white/20"></div>
+</div>
+<div>
+<div class="glass-card p-8 rounded-2xl h-full flex flex-col items-center text-center">
+<div class="step-number w-12 h-12 rounded-full flex items-center justify-center text-white font-bold mb-6">05</div>
+<h4 class="font-headline-md text-lg text-white mb-3">Deploy</h4>
+<p class="text-sm text-on-surface-variant">One-click push to remote repositories.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-32 px-margin-mobile md:px-margin-desktop">
+<div class="max-w-4xl mx-auto glass-panel p-16 md:p-24 rounded-[48px] text-center relative overflow-hidden">
+<!-- Decorative Glow -->
+<div class="absolute -top-24 -left-24 w-64 h-64 bg-white/10 blur-[100px] rounded-full"></div>
+<div class="absolute -bottom-24 -right-24 w-64 h-64 bg-white/10 blur-[100px] rounded-full"></div>
+<div class="relative z-10">
+<h2 class="font-headline-lg text-4xl md:text-6xl text-white mb-8 tracking-tight">Ready to ship more?</h2>
+<p class="font-body-lg text-on-surface-variant mb-12 max-w-xl mx-auto">
+                        Ready to automate your engineering management? Join 10,000+ developers scaling their productivity with Git AI Engine.
+                    </p>
+<button class="btn-primary px-12 py-6 rounded-2xl font-headline-md text-xl inline-flex items-center gap-4">
+<span class="material-symbols-outlined">rocket_launch</span>
+                        Start with GitHub
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="relative z-10 py-20 px-margin-mobile md:px-margin-desktop border-t border-white/5">
+<div class="max-w-container-max mx-auto glass-panel p-12 rounded-[32px]">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+<div class="col-span-1 md:col-span-2">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-8 h-8 bg-white rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-black text-xl font-bold">smart_toy</span>
+</div>
+<span class="font-headline-md text-xl font-bold tracking-tighter text-white">GIT AI</span>
+</div>
+<p class="text-on-surface-variant max-w-sm font-body-md leading-relaxed">
+                        The future of autonomous engineering intelligence. Built for the 2026 dev ecosystem.
+                    </p>
+</div>
+<div>
+<h5 class="font-label-mono text-[10px] uppercase tracking-[0.2em] text-white mb-8">Product</h5>
+<ul class="space-y-4 font-body-md text-on-surface-variant">
+<li><a class="hover:text-white transition-colors" href="#">Features</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Pricing</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Roadmap</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-label-mono text-[10px] uppercase tracking-[0.2em] text-white mb-8">Resources</h5>
+<ul class="space-y-4 font-body-md text-on-surface-variant">
+<li><a class="hover:text-white transition-colors" href="#">Documentation</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Status</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Terms</a></li>
+</ul>
+</div>
+</div>
+<div class="pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="font-label-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
+                    © 2026 GIT AI ENGINE. ALL RIGHTS RESERVED.
+                </div>
+<div class="flex gap-8 font-label-mono text-[10px] uppercase tracking-[0.2em]">
+<a class="text-on-surface-variant hover:text-white transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant hover:text-white transition-colors" href="#">License</a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>
