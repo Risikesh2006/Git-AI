@@ -371,6 +371,12 @@ The trained model artifact is saved to `models/priority_model.pkl` and picked up
 4. Use Git AI's own Commit Assistant to generate and confirm your commit.
 5. Push your branch and open a pull request with a clear description of what changed and why.
 
+### Additional Guidelines
+- **Code Style**: Ensure TypeScript and CSS practices are followed, maintaining structural integrity and responsive layout conventions.
+- **Verification**: Run `npm run build` in the frontend directory to verify that Next.js and Tailwind compilation succeed without any lint or compilation errors before opening a pull request.
+
+---
+
 ## License
 
 **MIT License** — built for developers who want to ship more, smarter.
