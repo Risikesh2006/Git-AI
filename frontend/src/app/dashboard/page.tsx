@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { DashboardShaderBackground } from './DashboardShaderBackground';
 import { useMagnetic } from './useMagnetic';
 
+// Interface representing consolidated metrics for git repository health and activity metrics
 interface HealthStats {
   health_score: number;
   total_repos: number;
