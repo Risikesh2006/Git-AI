@@ -2,6 +2,9 @@
 
 /* ════════════════════════════════════════════
    GLOBAL OVERRIDES FOR DASHBOARD
+   Design System: Sora (Headings), Hanken Grotesk (Body), JetBrains Mono (Labels/Monospace)
+   Color Palette: Deep Blacks (#060606), Sleek Whites, Glassmorphic Transparency
+   Aesthetics: Premium, glowing gradients, interactive tilt effects
 ════════════════════════════════════════════ */
 body {
   background-color: #060606;
