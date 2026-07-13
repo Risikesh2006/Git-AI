@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { toast } from '@/components/ui/Toaster';
 
+// Main landing page component that handles user authentication and redirects
+// to the dashboard if the user is already signed in via GitHub.
 export default function HomePage() {
   const { user, loading, signInWithGithub } = useAuth();
   const router = useRouter();
