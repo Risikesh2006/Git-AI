@@ -1,0 +1,296 @@
+<!DOCTYPE html><html lang="en" class="dark" style=""><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@100..800&amp;family=Hanken+Grotesk:wght@100..900&amp;family=JetBrains+Mono:wght@100..800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">try{
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "surface-container-highest": "#353535",
+                "primary-fixed": "#e2e2e2",
+                "on-secondary-fixed": "#1c1b1b",
+                "surface-dim": "#131313",
+                "on-tertiary": "#313030",
+                "on-error": "#690005",
+                "on-tertiary-container": "#656464",
+                "error": "#ffb4ab",
+                "secondary-fixed": "#e5e2e1",
+                "on-secondary-fixed-variant": "#474746",
+                "secondary-fixed-dim": "#c8c6c5",
+                "surface-tint": "#c6c6c7",
+                "secondary-container": "#474746",
+                "on-tertiary-fixed-variant": "#474646",
+                "inverse-on-surface": "#303030",
+                "on-surface": "#e2e2e2",
+                "surface-container-low": "#1b1b1b",
+                "secondary": "#c8c6c5",
+                "error-container": "#93000a",
+                "on-primary": "#2f3131",
+                "inverse-primary": "#5d5f5f",
+                "primary": "#ffffff",
+                "on-primary-container": "#636565",
+                "on-surface-variant": "#c4c7c8",
+                "tertiary-fixed": "#e5e2e1",
+                "outline": "#8e9192",
+                "on-error-container": "#ffdad6",
+                "surface-bright": "#393939",
+                "on-secondary-container": "#b7b5b4",
+                "primary-fixed-dim": "#c6c6c7",
+                "tertiary-fixed-dim": "#c9c6c5",
+                "inverse-surface": "#e2e2e2",
+                "tertiary": "#ffffff",
+                "surface": "#131313",
+                "surface-container": "#1f1f1f",
+                "outline-variant": "#444748",
+                "surface-container-high": "#2a2a2a",
+                "tertiary-container": "#e5e2e1",
+                "on-primary-fixed-variant": "#454747",
+                "surface-variant": "#353535",
+                "on-secondary": "#313030",
+                "on-primary-fixed": "#1a1c1c",
+                "primary-container": "#e2e2e2",
+                "background": "#131313",
+                "surface-container-lowest": "#0e0e0e",
+                "on-tertiary-fixed": "#1c1b1b",
+                "on-background": "#e2e2e2"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "unit": "8px",
+                "margin-mobile": "24px",
+                "section-gap": "160px",
+                "margin-desktop": "80px",
+                "gutter": "32px",
+                "container-max": "1440px"
+            },
+            "fontFamily": {
+                "label-mono": ["JetBrains Mono"],
+                "body-md": ["Hanken Grotesk"],
+                "body-lg": ["Hanken Grotesk"],
+                "headline-md": ["Sora"],
+                "display-hero-mobile": ["Sora"],
+                "display-hero": ["Sora"],
+                "headline-lg": ["Sora"]
+            }
+          }
+        }
+      }
+    }catch(_e){}</script></head><body class="font-body-md text-body-md min-h-screen bg-background antialiased">
+
+    <!-- Background Watermorphism Blobs -->
+    <div class="water-morphism bg-white w-[500px] h-[500px] rounded-full top-[-10%] left-[-10%] animate-pulse"></div>
+    <div class="water-morphism bg-white w-[400px] h-[400px] rounded-full bottom-[-10%] right-[-10%]" style="animation-duration: 10s;"></div>
+
+    <!-- Navigation Shell: Top Bar -->
+    <aside class="fixed left-10 top-1/2 -translate-y-1/2 w-24 hover:w-72 h-[800px] bg-white/5 backdrop-blur-[80px] border border-white/20 rounded-[48px] flex flex-col items-center py-10 gap-8 shadow-[24px_24px_48px_rgba(0,0,0,0.6)] transition-all duration-500 ease-in-out group z-50 overflow-hidden">
+<div class="mb-8 flex flex-col items-center group-hover:items-start group-hover:px-6 w-full">
+<div class="w-12 h-12 glass-panel flex items-center justify-center rounded-2xl mb-2">
+<span class="material-symbols-outlined text-primary text-2xl">terminal</span>
+</div>
+<div class="hidden group-hover:block px-6">
+<h2 class="font-headline-md text-headline-md text-primary leading-none">Git AI</h2>
+<p class="font-label-mono text-label-mono text-on-surface-variant/60 uppercase mt-1">v2.4.0-pro</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2 w-full px-4">
+<a class="flex items-center gap-4 p-4 text-on-surface-variant/60 hover:bg-white/10 hover:text-primary rounded-full transition-all duration-300 group/item" href="#">
+<span class="material-symbols-outlined shrink-0">terminal</span>
+<span class="hidden group-hover:block font-label-mono text-label-mono whitespace-nowrap">Core</span>
+</a>
+<a class="flex items-center gap-4 p-4 text-on-surface-variant/60 hover:bg-white/10 hover:text-primary rounded-full transition-all duration-300 group/item" href="#">
+<span class="material-symbols-outlined shrink-0">psychology</span>
+<span class="hidden group-hover:block font-label-mono text-label-mono whitespace-nowrap">Models</span>
+</a>
+<a class="flex items-center gap-4 p-4 text-on-surface-variant/60 hover:bg-white/10 hover:text-primary rounded-full transition-all duration-300 group/item" href="#">
+<span class="material-symbols-outlined shrink-0">hub</span>
+<span class="hidden group-hover:block font-label-mono text-label-mono whitespace-nowrap">Nodes</span>
+</a>
+<a class="flex items-center gap-4 p-4 bg-white/20 text-primary backdrop-blur-xl rounded-full transition-all duration-300 group/item" href="#">
+<span class="material-symbols-outlined shrink-0">auto_awesome</span>
+<span class="hidden group-hover:block font-label-mono text-label-mono whitespace-nowrap">Commit Assistant</span>
+</a>
+<a class="flex items-center gap-4 p-4 text-on-surface-variant/60 hover:bg-white/10 hover:text-primary rounded-full transition-all duration-300 group/item" href="#">
+<span class="material-symbols-outlined shrink-0">list_alt</span>
+<span class="hidden group-hover:block font-label-mono text-label-mono whitespace-nowrap">Logs</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col items-center gap-4 w-full">
+<button class="w-12 h-12 glass-panel group-hover:w-[80%] group-hover:h-12 rounded-full flex items-center justify-center transition-all duration-500 overflow-hidden">
+<span class="material-symbols-outlined text-primary group-hover:hidden">rocket_launch</span>
+<span class="hidden group-hover:block font-label-mono text-label-mono text-primary px-2">Deploy Node</span>
+</button>
+<div class="w-10 h-10 rounded-full border border-white/20 overflow-hidden">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChQt_f6MDw45kRtW4zZHA3NefLK8nEaKDl4vyX66JQXsbe22-91si-A_L07mGJ68qiLIw0Sy2sVrQ4ryuSpO_YyHAU6i66XtgagSCPYlEXk8rE5nSbr7tfDP2m8EN5AjB6PNESiK6DWjH8hcxNh1V-6ZbWQUatzBJBR2Z4XrgmnYgVAcIapjesCQGCvTJvMHfYISZFgLEvIJjxy_dv6eTswdZlKJpRFOFg6E2NDAny815yAG-HbJGS" alt="User Profile">
+</div>
+</div>
+</aside>
+
+    <!-- Side Navigation Sidebar (Floating Black Capsule) -->
+    
+
+    <!-- Main Content Area -->
+    <main class="mx-auto max-w-6xl px-margin-desktop py-12 pt-24 min-h-[calc(100vh-64px)] flex flex-col gap-12 md:pl-40">
+        
+        <!-- Header Section -->
+        <section class="flex flex-col gap-2">
+            <div class="flex items-center gap-4 text-white/40 mb-2">
+                <span class="font-label-mono text-[10px] tracking-widest uppercase px-3 py-1 border border-white/10 rounded-full">Assistant Interface</span>
+                <div class="w-2 h-2 rounded-full bg-green-500 ai-halo"></div>
+                <span class="font-label-mono text-[10px] tracking-widest uppercase">System Operational</span>
+            </div>
+            <h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">Commit Assistant</h1>
+            <p class="font-body-lg text-body-lg text-white/60 max-w-2xl">AI-generated commit messages • Requires your approval before pushing</p>
+        </section>
+
+        <!-- Warning Banner -->
+        <div class="glass-panel p-6 rounded-2xl flex items-start gap-6 border-l-4 border-l-primary/30">
+            <div class="p-3 glass-pill rounded-xl">
+                <span class="material-symbols-outlined text-primary text-[32px]">verified_user</span>
+            </div>
+            <div class="flex flex-col gap-1">
+                <h3 class="font-label-mono text-label-mono font-bold uppercase tracking-widest text-primary">Approval Required</h3>
+                <p class="text-white/60 font-body-md">Git AI will never commit or push without your explicit approval. You can review and edit every message before finalizing changes to the remote repository.</p>
+            </div>
+        </div>
+
+        <!-- Interactive Form Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter lg:gap-12">
+            
+            <!-- Input Area -->
+            <div class="lg:col-span-7 flex flex-col gap-gutter">
+                <div class="glass-panel p-gutter rounded-[32px] flex flex-col gap-8">
+                    <div class="flex flex-col gap-4">
+                        <label class="font-label-mono text-label-mono font-bold uppercase tracking-widest text-white/40">Select Repository &amp; Describe Task</label>
+                        
+                        <!-- Dropdown Mock -->
+                        <div class="relative group">
+                            <div class="neumorphic-inset w-full p-4 rounded-xl flex justify-between items-center cursor-pointer border border-white/5 hover:border-white/20 transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-white/40">folder</span>
+                                    <span class="text-white/80">Choose repository...</span>
+                                </div>
+                                <span class="material-symbols-outlined text-white/40 group-hover:translate-y-1 transition-transform">expand_more</span>
+                            </div>
+                        </div>
+
+                        <!-- Text Area -->
+                        <div class="flex flex-col gap-2 mt-4">
+                            <label class="font-label-mono text-[10px] text-white/40 uppercase pl-1">Contribution Details</label>
+                            <textarea class="neumorphic-inset w-full p-6 rounded-2xl min-h-[200px] text-white placeholder-white/20 focus:ring-1 focus:ring-white/20 outline-none transition-all resize-none font-body-md" placeholder="What did you work on? (optional — helps AI write better commit message)"></textarea>
+                        </div>
+                    </div>
+
+                    <button class="w-full py-5 rounded-full bg-white text-black font-headline-md text-body-lg font-extrabold shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_40px_rgba(255,255,255,0.4)] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-3">
+                        Prepare &amp; Review Changes
+                        <span class="material-symbols-outlined font-bold">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Visual Context Sidebar -->
+            <div class="lg:col-span-5 flex flex-col gap-gutter">
+                <div class="glass-panel p-gutter rounded-[32px] h-full relative overflow-hidden group">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3e6lzlVmSdUqWnWKWvNeMFqP59ZTs6S_pF_ZhDh_5KjCEurmFIWHr8m7BoJ8f8c-uh_Ub9nCBeWr0vEBK_fBNoDdBy6XHgcjj5g1Dx8_OF4fOe3Tu7sMrX5V6jaPoDt20S-3j-3rJOMAc4SADR3Xgz0DrhIpkiFZR-RfZ_oq-jMx8MPZ6bS4xyCN_5J_lk-tZCR-8gzW9uFuBCter7kCop82sUVWmY-OlRYbSegqPcrwo3-p4xWVXOcqMUSK86HR81A" data-alt="A professional, high-fidelity dark UI screen capture of a git management application. The interface features obsidian-like surfaces, sharp silver borders, and blurred glass panels. A central module displays a commit message generator with clean typography and a monochrome silver-on-black color scheme. The overall aesthetic is futuristic, architectural, and premium." class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 group-hover:scale-105 transition-all duration-1000" data-stitch-orig-opacity="0">
+                    <div class="relative z-10 flex flex-col h-full">
+                        <div class="flex items-center justify-between mb-8">
+                            <span class="font-label-mono text-label-mono uppercase tracking-widest text-primary">Local Status</span>
+                            <span class="glass-pill px-3 py-1 rounded-full text-[10px] font-label-mono">AETHER_MONOLITH_CORE</span>
+                        </div>
+                        
+                        <div class="mt-auto space-y-4">
+                            <div class="flex items-center gap-4 glass-pill p-3 rounded-xl border border-white/10">
+                                <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-white/60">add_circle</span>
+                                </div>
+                                <div>
+                                    <p class="font-label-mono text-[11px] text-white">423 Modified Files</p>
+                                    <p class="text-[10px] text-white/40 uppercase">Pending AI Indexing</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 glass-pill p-3 rounded-xl border border-white/10">
+                                <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-white/60">delete</span>
+                                </div>
+                                <div>
+                                    <p class="font-label-mono text-[11px] text-white">12 Deleted Items</p>
+                                    <p class="text-[10px] text-white/40 uppercase">Cleaned Assets</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Bento Grid -->
+        <section class="mt-margin-desktop flex flex-col gap-gutter lg:mt-section-gap">
+            <div class="flex items-center justify-between">
+                <h2 class="font-headline-md text-headline-md text-primary tracking-tight">Recent Insights</h2>
+                <button class="text-white/40 hover:text-white flex items-center gap-2 transition-colors">
+                    <span class="font-label-mono text-label-mono uppercase tracking-widest">View All Protocol</span>
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+                <div class="glass-panel p-8 rounded-[32px] flex flex-col gap-6 group hover:border-white/30 transition-all duration-500">
+                    <span class="material-symbols-outlined text-primary text-[40px]">architecture</span>
+                    <div class="flex flex-col gap-2">
+                        <h4 class="font-label-mono text-label-mono font-black uppercase text-primary">Architecture</h4>
+                        <p class="text-white/40 font-body-md text-sm">Review the underlying monolithic architecture of the Git AI core engine.</p>
+                    </div>
+                </div>
+                <div class="glass-panel p-8 rounded-[32px] flex flex-col gap-6 group hover:border-white/30 transition-all duration-500">
+                    <span class="material-symbols-outlined text-primary text-[40px]">security</span>
+                    <div class="flex flex-col gap-2">
+                        <h4 class="font-label-mono text-label-mono font-black uppercase text-primary">Protocol</h4>
+                        <p class="text-white/40 font-body-md text-sm">Security measures and encryption protocols for secure remote pushes.</p>
+                    </div>
+                </div>
+                <div class="glass-panel p-8 rounded-[32px] flex flex-col gap-6 group hover:border-white/30 transition-all duration-500">
+                    <span class="material-symbols-outlined text-primary text-[40px]">monitoring</span>
+                    <div class="flex flex-col gap-2">
+                        <h4 class="font-label-mono text-label-mono font-black uppercase text-primary">Status</h4>
+                        <p class="text-white/40 font-body-md text-sm">Real-time health monitoring of AI training nodes and inference speed.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-section-gap border-t border-white/5 bg-transparent">
+        <div class="flex justify-between items-center px-margin-desktop py-gutter w-full max-w-container-max mx-auto font-label-mono text-label-mono text-on-surface-variant/40">
+            <div class="flex items-center gap-8">
+                <span class="font-black text-primary">GIT AI</span>
+                <p class="">© 2024 GIT AI. AETHER MONOLITH CORE.</p>
+            </div>
+            <div class="flex gap-12">
+                <a href="#" class="hover:text-primary transition-colors duration-300">Architecture</a>
+                <a href="#" class="hover:text-primary transition-colors duration-300">Protocol</a>
+                <a href="#" class="hover:text-primary transition-colors duration-300">Terminal</a>
+                <a href="#" class="hover:text-primary transition-colors duration-300">Status</a>
+            </div>
+        </div>
+    </footer>
+
+    <script class="">
+        // Micro-interactions
+        document.querySelectorAll('.glass-panel, .glass-pill').forEach(el => {
+            el.addEventListener('mousemove', e => {
+                const rect = el.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                el.style.setProperty('--mouse-x', `${x}px`);
+                el.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+
+        // Simulating AI interaction
+        const textarea = document.querySelector('textarea');
+        textarea.addEventListener('focus', () => {
+            document.querySelector('.ai-</script></body></html>
