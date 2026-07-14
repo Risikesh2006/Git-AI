@@ -1,0 +1,244 @@
+<!DOCTYPE html><html lang="en" class="dark"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&amp;family=Hanken+Grotesk:wght@400;500&amp;family=JetBrains+Mono:wght@500;700;800&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">try{
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#1f1f1f",
+                        "on-surface-variant": "#c4c7c8",
+                        "primary-fixed-dim": "#c6c6c7",
+                        "on-secondary": "#313030",
+                        "secondary-fixed": "#e5e2e1",
+                        "outline": "#8e9192",
+                        "primary-fixed": "#e2e2e2",
+                        "inverse-on-surface": "#303030",
+                        "error": "#ffb4ab",
+                        "surface": "#131313",
+                        "on-secondary-container": "#b7b5b4",
+                        "on-primary-container": "#636565",
+                        "surface-variant": "#353535",
+                        "surface-bright": "#393939",
+                        "surface-dim": "#131313",
+                        "secondary-container": "#474746",
+                        "on-tertiary-fixed": "#1c1b1b",
+                        "tertiary-container": "#e5e2e1",
+                        "on-error-container": "#ffdad6",
+                        "error-container": "#93000a",
+                        "on-tertiary": "#313030",
+                        "on-tertiary-container": "#656464",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "on-secondary-fixed-variant": "#474746",
+                        "on-primary-fixed": "#1a1c1c",
+                        "surface-container-high": "#2a2a2a",
+                        "tertiary": "#ffffff",
+                        "surface-container-lowest": "#0e0e0e",
+                        "secondary": "#c8c6c5",
+                        "primary-container": "#e2e2e2",
+                        "on-error": "#690005",
+                        "background": "#131313",
+                        "surface-tint": "#c6c6c7",
+                        "on-background": "#e2e2e2",
+                        "on-tertiary-fixed-variant": "#474646",
+                        "inverse-primary": "#5d5f5f",
+                        "primary": "#ffffff",
+                        "tertiary-fixed-dim": "#c9c6c5",
+                        "on-surface": "#e2e2e2",
+                        "tertiary-fixed": "#e5e2e1",
+                        "inverse-surface": "#e2e2e2",
+                        "on-primary-fixed-variant": "#454747",
+                        "surface-container-highest": "#353535",
+                        "outline-variant": "#444748",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "surface-container-low": "#1b1b1b",
+                        "on-primary": "#2f3131"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "24px",
+                        "container-max": "1440px",
+                        "gutter": "32px",
+                        "unit": "8px",
+                        "section-gap": "160px",
+                        "margin-desktop": "80px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-md": ["Sora"],
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-lg": ["Sora"],
+                        "display-hero-mobile": ["Sora"],
+                        "display-hero": ["Sora"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "body-lg": ["20px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "label-mono": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                        "headline-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "display-hero-mobile": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.03em", "fontWeight": "800"}],
+                        "display-hero": ["96px", {"lineHeight": "1.0", "letterSpacing": "-0.04em", "fontWeight": "800"}]
+                    }
+                }
+            }
+        }
+    }catch(_e){}</script><meta charset="utf-8"></head><body class="bg-[#000000] text-on-surface font-body-md min-h-screen overflow-x-hidden selection:bg-primary selection:text-surface">
+<!-- Background Elements -->
+<div class="fixed inset-0 grid-pattern pointer-events-none z-0"></div>
+<div class="fixed top-[-10%] right-[-10%] w-[50vw] h-[50vw] water-layer bg-primary/5 z-0"></div>
+<div class="fixed bottom-[-20%] left-[-10%] w-[60vw] h-[60vw] water-layer bg-white/5 z-0"></div>
+<!-- Sidebar: Executed from SideNavBar JSON -->
+<aside class="fixed left-8 top-1/2 -translate-y-1/2 w-20 hover:w-64 h-[720px] bg-white/5 backdrop-blur-[80px] border border-white/20 rounded-full flex flex-col items-center py-8 gap-6 shadow-[12px_12px_24px_rgba(0,0,0,0.5)] transition-all duration-500 ease-in-out group z-50 overflow-hidden">
+<div class="mb-8 flex flex-col items-center group-hover:items-start group-hover:px-6 w-full">
+<div class="w-12 h-12 glass-panel flex items-center justify-center rounded-2xl mb-2">
+<span class="material-symbols-outlined text-primary text-2xl">terminal</span>
+</div>
+<div class="hidden group-hover:block px-6">
+<h2 class="font-headline-md text-headline-md text-primary leading-none">Git AI</h2>
+<p class="font-label-mono text-label-mono text-on-surface-variant/60 uppercase mt-1">v2.4.0-pro</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2 w-full px-4">
+<a class="flex items-center gap-4 p-4 text-on-surface-variant/60 hover:bg-white/10 hover:text-primary rounded-full transition-all duration-300 group/item" href="#">
+<span class="material-symbols-outlined shrink-0">terminal</span>
+<span class="hidden group-hover:block font-label-mono text-label-mono whitespace-nowrap">Core</span>
+</a>
+<a class="flex items-center gap-4 p-4 text-on-surface-variant/60 hover:bg-white/10 hover:text-primary rounded-full transition-all duration-300 group/item" href="#">
+<span class="material-symbols-outlined shrink-0">psychology</span>
+<span class="hidden group-hover:block font-label-mono text-label-mono whitespace-nowrap">Models</span>
+</a>
+<a class="flex items-center gap-4 p-4 text-on-surface-variant/60 hover:bg-white/10 hover:text-primary rounded-full transition-all duration-300 group/item" href="#">
+<span class="material-symbols-outlined shrink-0">hub</span>
+<span class="hidden group-hover:block font-label-mono text-label-mono whitespace-nowrap">Nodes</span>
+</a>
+<a class="flex items-center gap-4 p-4 bg-white/20 text-primary backdrop-blur-xl rounded-full transition-all duration-300 group/item" href="#">
+<span class="material-symbols-outlined shrink-0">auto_awesome</span>
+<span class="hidden group-hover:block font-label-mono text-label-mono whitespace-nowrap">AI Planner</span>
+</a>
+<a class="flex items-center gap-4 p-4 text-on-surface-variant/60 hover:bg-white/10 hover:text-primary rounded-full transition-all duration-300 group/item" href="#">
+<span class="material-symbols-outlined shrink-0">list_alt</span>
+<span class="hidden group-hover:block font-label-mono text-label-mono whitespace-nowrap">Logs</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col items-center gap-4 w-full">
+<button class="w-12 h-12 glass-panel group-hover:w-[80%] group-hover:h-12 rounded-full flex items-center justify-center transition-all duration-500 overflow-hidden">
+<span class="material-symbols-outlined text-primary group-hover:hidden">rocket_launch</span>
+<span class="hidden group-hover:block font-label-mono text-label-mono text-primary px-2">Deploy Node</span>
+</button>
+<div class="w-10 h-10 rounded-full border border-white/20 overflow-hidden">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChQt_f6MDw45kRtW4zZHA3NefLK8nEaKDl4vyX66JQXsbe22-91si-A_L07mGJ68qiLIw0Sy2sVrQ4ryuSpO_YyHAU6i66XtgagSCPYlEXk8rE5nSbr7tfDP2m8EN5AjB6PNESiK6DWjH8hcxNh1V-6ZbWQUatzBJBR2Z4XrgmnYgVAcIapjesCQGCvTJvMHfYISZFgLEvIJjxy_dv6eTswdZlKJpRFOFg6E2NDAny815yAG-HbJGS" alt="User Profile">
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-24 md:ml-40 lg:ml-48 px-margin-desktop py-gutter z-10 relative">
+<!-- Header Section -->
+<header class="mb-8 pt-4">
+<div class="flex items-center gap-4 mb-4">
+<div class="vapor-badge px-4 py-1.5 rounded-full border border-white/10">
+<span class="font-label-mono text-label-mono text-primary uppercase">LM Studio 2.0 Engine</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary pulse-glow shadow-[0_0_10px_rgba(255,255,255,0.8)]"></div>
+<span class="font-label-mono text-[10px] text-on-surface-variant tracking-widest uppercase">System Online</span>
+</div>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tighter mb-4">AI Daily Planner</h1>
+<p class="font-body-lg text-on-surface-variant max-w-2xl">
+                LM Studio generates your personalized development plan by analyzing repository health, open issues, and commit velocity.
+            </p>
+</header>
+<!-- Planning Container -->
+<div class="flex flex-col gap-gutter">
+<!-- Action Bar -->
+<div class="glass-panel p-8 rounded-[40px] flex flex-wrap items-end gap-6">
+<div class="flex-1 min-w-[300px]">
+<label class="block font-label-mono text-label-mono text-on-surface-variant uppercase mb-4 px-2">Select Repository</label>
+<div class="relative group">
+<select class="w-full h-14 neumorphic-inset border-none rounded-2xl px-6 font-body-md text-on-surface appearance-none focus:ring-1 focus:ring-primary/50 transition-all cursor-pointer">
+<option disabled="" selected="">Choose a repository...</option>
+<option>Aether-Monolith-v2</option>
+<option>Core-Protocol-Sharding</option>
+<option>UI-Design-System-2026</option>
+<option>ML-Ops-Pipeline-Main</option>
+</select>
+<span class="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<button class="h-14 px-8 bg-primary text-surface font-headline-md text-lg rounded-2xl hover:shadow-[0_0_20px_rgba(255,255,255,0.5)] transition-all duration-300 active:scale-95 flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="auto_awesome">auto_awesome</span>
+                    Generate Daily Plan
+                </button>
+</div>
+<!-- Content Area / Empty State -->
+<div class="glass-panel min-h-[500px] rounded-[40px] flex flex-col items-center justify-center p-12 relative overflow-hidden">
+<!-- Atmospheric Background in-->
+<div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
+<div class="relative z-10 flex flex-col items-center text-center">
+<div class="w-32 h-32 glass-panel rounded-full flex items-center justify-center mb-8 relative">
+<span class="material-symbols-outlined text-6xl text-primary animate-pulse" data-icon="smart_toy">smart_toy</span>
+<!-- Pulsing rings -->
+<div class="absolute inset-0 rounded-full border border-primary/20 animate-ping"></div>
+</div>
+<h2 class="font-headline-md text-headline-md text-primary mb-4">Ready to plan your day?</h2>
+<p class="font-body-md text-on-surface-variant max-w-md mx-auto">
+                        Select a repository and click "Generate Daily Plan". LM Studio will analyze recent commits, issues, and PRs to curate your optimal workflow.
+                    </p>
+<div class="mt-12 flex gap-4">
+<div class="vapor-badge px-6 py-4 rounded-3xl flex flex-col items-center gap-2 border border-white/5 min-w-[140px]">
+<span class="material-symbols-outlined text-primary/60">analytics</span>
+<span class="font-label-mono text-[10px] text-on-surface-variant uppercase">Commit History</span>
+</div>
+<div class="vapor-badge px-6 py-4 rounded-3xl flex flex-col items-center gap-2 border border-white/5 min-w-[140px]">
+<span class="material-symbols-outlined text-primary/60">bug_report</span>
+<span class="font-label-mono text-[10px] text-on-surface-variant uppercase">Issue Priority</span>
+</div>
+<div class="vapor-badge px-6 py-4 rounded-3xl flex flex-col items-center gap-2 border border-white/5 min-w-[140px]">
+<span class="material-symbols-outlined text-primary/60">speed</span>
+<span class="font-label-mono text-[10px] text-on-surface-variant uppercase">Dev Velocity</span>
+</div>
+</div>
+</div>
+<!-- Subtle Grid on Empty State -->
+<div class="absolute bottom-0 w-full h-1/3 bg-gradient-to-t from-primary/5 to-transparent"></div>
+</div>
+</div>
+<!-- Footer: Executed from Footer JSON -->
+<footer class="border-t border-white/5 py-gutter flex justify-between items-center w-full max-w-container-max mx-auto mt-12">
+<p class="font-label-mono text-label-mono font-black text-on-surface-variant">© 2024 GIT AI. AETHER MONOLITH CORE.</p>
+<div class="flex gap-8">
+<a class="font-label-mono text-label-mono text-on-surface-variant/40 hover:text-primary transition-colors duration-300" href="#">Architecture</a>
+<a class="font-label-mono text-label-mono text-on-surface-variant/40 hover:text-primary transition-colors duration-300" href="#">Protocol</a>
+<a class="font-label-mono text-label-mono text-on-surface-variant/40 hover:text-primary transition-colors duration-300" href="#">Terminal</a>
+<a class="font-label-mono text-label-mono text-on-surface-variant/40 hover:text-primary transition-colors duration-300" href="#">Status</a>
+</div>
+</footer>
+</main>
+<!-- Micro-interaction Toasts -->
+<div class="fixed bottom-8 right-8 flex flex-col gap-3 z-[100]">
+<div class="glass-panel px-6 py-4 rounded-2xl flex items-center gap-4 animate-bounce border-error/20 bg-error/5">
+<span class="material-symbols-outlined text-error">cancel</span>
+<span class="font-label-mono text-label-mono text-error uppercase">Failed to load repos</span>
+<button class="text-on-surface-variant hover:text-white ml-2"><span class="material-symbols-outlined text-sm">close</span></button>
+</div>
+</div>
+<!-- AI Ambient Lighting Script -->
+<script class="">
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            const waterLayers = document.querySelectorAll('.water-layer');
+            waterLayers.forEach((layer, index) => {
+                const speed = (index + 1) * 20;
+                layer.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+            });
+        });
+    </script>
+
+</body></html>
