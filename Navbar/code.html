@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Sidebar - Aether Monolith</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ffffff',
+                        background: '#0e0e0e',
+                        surface: '#131313',
+                        'surface-container': '#1b1b1b',
+                        outline: '#393939',
+                    },
+                    fontFamily: {
+                        sans: ['Sora', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        '48': '48px',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0e0e0e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Sora', sans-serif;
+            overflow: hidden;
+        }
+
+        .glass-sidebar {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(80px);
+            -webkit-backdrop-filter: blur(80px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-item {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: scale(1.05);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .nav-item.active .material-icons-outlined {
+            color: white;
+        }
+
+        .sidebar-container {
+            width: 80px;
+            height: 80vh;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-container:hover {
+            width: 240px;
+        }
+
+        .label-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .sidebar-container:hover .label-text {
+            opacity: 1;
+            transform: translateX(0);
+            margin-left: 16px;
+        }
+
+        .user-profile {
+            transition: all 0.5s ease;
+        }
+
+        .sidebar-container:hover .user-info {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .user-info {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar-container glass-sidebar rounded-48 flex flex-col items-center py-8 gap-6 group overflow-hidden">
+        
+        <!-- Logo Section -->
+        <div class="mb-8 flex items-center justify-center w-full px-6">
+            <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center flex-shrink-0">
+                <span class="material-icons-outlined text-black text-3xl">smart_toy</span>
+            </div>
+            <div class="label-text">
+                <h1 class="text-white font-bold text-xl tracking-tighter">Git AI</h1>
+                <p class="text-[10px] text-zinc-500 font-mono tracking-widest uppercase">Elite v2026</p>
+            </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="flex-1 w-full px-3 flex flex-col gap-3">
+            <a href="#" class="nav-item flex items-center h-14 rounded-full px-4 text-zinc-500 hover:text-white">
+                <span class="material-icons-outlined">dashboard</span>
+                <span class="label-text font-medium">Dashboard</span>
+            </a>
+            <a href="#" class="nav-item flex items-center h-14 rounded-full px-4 text-zinc-500 hover:text-white">
+                <span class="material-icons-outlined">account_tree</span>
+                <span class="label-text font-medium">Repositories</span>
+            </a>
+            <a href="#" class="nav-item flex items-center h-14 rounded-full px-4 text-zinc-500 hover:text-white">
+                <span class="material-icons-outlined">auto_awesome</span>
+                <span class="label-text font-medium">AI Planner</span>
+            </a>
+            <a href="#" class="nav-item active flex items-center h-14 rounded-full px-4 text-white shadow-inner">
+                <span class="material-icons-outlined">terminal</span>
+                <span class="label-text font-medium">Commit Assistant</span>
+            </a>
+            <a href="#" class="nav-item flex items-center h-14 rounded-full px-4 text-zinc-500 hover:text-white">
+                <span class="material-icons-outlined">history</span>
+                <span class="label-text font-medium">History</span>
+            </a>
+        </div>
+
+        <!-- User Profile Section -->
+        <div class="w-full px-3 pt-6 border-t border-white/5">
+            <div class="flex items-center h-16 rounded-full px-2">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 border border-white/10 flex items-center justify-center flex-shrink-0">
+                    <span class="text-white font-bold">U</span>
+                </div>
+                <div class="user-info ml-4 overflow-hidden">
+                    <p class="text-sm font-semibold text-white truncate">User</p>
+                    <p class="text-[10px] text-zinc-500 truncate">@github_admin</p>
+                </div>
+                <button class="ml-auto text-zinc-500 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span class="material-icons-outlined">logout</span>
+                </button>
+            </div>
+        </div>
+
+    </nav>
+
+</body>
+</html>
