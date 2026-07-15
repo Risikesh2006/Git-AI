@@ -1,4 +1,8 @@
-# Git AI 🤖 — Autonomous AI-Powered GitHub Engineering Manager
+<div align="center">
+
+# 🤖 Git AI
+
+### Autonomous AI-Powered GitHub Engineering Manager
 
 > Your personal AI engineering manager that watches over your GitHub repositories, tells you what to work on next, and helps you ship real code — safely, and only with your approval.
 
@@ -7,6 +11,8 @@
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](#prerequisites)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](#tech-stack)
 [![Status](https://img.shields.io/badge/status-active--development-orange)](#roadmap)
+
+</div>
 
 ---
 
@@ -23,6 +29,34 @@ Think of it as a mix between:
 ## Why Git AI?
 
 Most developers have more repositories than they can realistically maintain. Side projects go stale, documentation falls behind, tests stop passing, and it becomes hard to know where to focus. Git AI solves this by continuously scoring every repo on real signals, turning those signals into a prioritized daily plan instead of a vague todo list, using a local LLM so there's no dependency on (or cost from) cloud AI APIs, and keeping a human in the loop for every git operation so nothing is ever pushed silently.
+
+---
+
+## 🎨 Design Highlights
+
+The **Repositories**, **Dashboard**, and **AI Planner** pages have been redesigned for a cleaner, more focused engineering-manager feel — less "generic admin panel," more "control room for your codebase."
+
+### Repositories Page
+- **Card-based repo grid** — each repository is its own card showing priority score, last-commit recency, open issue count, and health status at a glance
+- **Priority color coding** — visual severity indicators (e.g. urgent / needs attention / healthy) so the repos that matter most are immediately scannable
+- **Inline scan controls** — trigger a single-repo rescan directly from its card instead of navigating away
+- **Sort & filter** — reorder repos by priority score, last activity, or open issues
+
+### Dashboard Page
+- **At-a-glance portfolio summary** — aggregate stats (total repos tracked, average health, repos needing attention) surfaced up top
+- **Recent activity feed** — a running log of recent scans, generated plans, and git actions
+- **Cleaner visual hierarchy** — key numbers and priority repos are pulled forward, with secondary detail tucked into expandable sections
+- **Responsive layout** — reflows gracefully from a multi-column desktop view down to a single-column mobile view
+
+### AI Planner Page
+- **Structured daily plan view** — the LLM's plan is rendered as discrete, actionable task cards rather than a wall of text
+- **Expandable task detail** — click into any plan item to pull in the fully-specified task (approach, context, relevant repo) via `/api/ai/generate-task`
+- **Clear plan-to-action flow** — a visible path from "here's what the AI suggests" to "here's the diff I'm about to commit," reinforcing that nothing ships without your review
+- **LM Studio connection status** — an always-visible indicator so you know at a glance whether the local model is reachable before requesting a plan
+
+> These pages share a consistent visual language — clear typographic hierarchy, generous spacing, and status-driven color accents — so priority and next actions are always obvious without digging through menus.
+
+*(Have specific colors, fonts, or layout details you want called out here instead? Send them over and I'll tighten this section up to match exactly.)*
 
 ---
 
