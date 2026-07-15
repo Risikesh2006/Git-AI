@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Git AI | Profile Elite 2026</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@100..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "primary": "#ffffff",
+                "background": "#0e0e0e",
+                "surface": "#131313",
+                "surface-container": "#1b1b1b",
+                "outline": "#393939",
+                "on-surface-variant": "#8e9192",
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "2xl": "1rem",
+                "48": "48px",
+                "full": "9999px"
+            },
+            "spacing": {
+                "margin-mobile": "24px",
+                "margin-desktop": "120px",
+                "unit": "8px",
+                "container-max": "1440px",
+                "section-gap": "160px",
+                "gutter": "32px"
+            },
+            "fontFamily": {
+                "sans": ["Sora", "sans-serif"],
+                "display-hero": ["Sora", "sans-serif"],
+                "label-mono": ["JetBrains Mono", "monospace"],
+                "headline-lg": ["Sora", "sans-serif"],
+                "body-md": ["Sora", "sans-serif"],
+                "headline-md": ["Sora", "sans-serif"],
+                "body-lg": ["Sora", "sans-serif"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0e0e0e;
+            color: #ffffff;
+            font-family: 'Sora', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(80px);
+            -webkit-backdrop-filter: blur(80px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.02);
+            border-radius: 24px;
+        }
+
+        .neumorphic-inset {
+            box-shadow: inset 4px 4px 12px rgba(0, 0, 0, 0.9), inset -2px -2px 8px rgba(255, 255, 255, 0.03);
+            background: #0a0a0a;
+        }
+
+        .vapor-badge {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ai-pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.5; box-shadow: 0 0 0px rgba(255, 255, 255, 0); }
+            50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 20px rgba(255, 255, 255, 0.6); }
+            100% { transform: scale(0.9); opacity: 0.5; box-shadow: 0 0 0px rgba(255, 255, 255, 0); }
+        }
+
+        .grid-bg {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+        
+        /* Aether Monolith Mesh Gradients */
+        .mesh-gradient-1 {
+            background: radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.04), transparent 40%),
+                        radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.03), transparent 50%);
+        }
+
+        .scroll-hide::-webkit-scrollbar { display: none; }
+
+        /* Sidebar specific styles from SCREEN_26 */
+        .glass-sidebar {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(80px);
+            -webkit-backdrop-filter: blur(80px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .nav-item { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.08); transform: scale(1.05); }
+        .nav-item.active { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; }
+        .nav-item.active .material-icons-outlined { color: white; }
+        .sidebar-container { width: 80px; height: 80vh; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar-container:hover { width: 240px; }
+        .label-text { opacity: 0; transform: translateX(-10px); transition: all 0.3s ease; white-space: nowrap; }
+        .sidebar-container:hover .label-text { opacity: 1; transform: translateX(0); margin-left: 16px; }
+        .user-profile { transition: all 0.5s ease; }
+        .sidebar-container:hover .user-info { opacity: 1; transform: translateX(0); }
+        .user-info { opacity: 0; transform: translateX(-10px); transition: all 0.3s ease; }
+        
+        /* Genome Animation */
+        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
+        .genome-ring { animation: spin-slow 20s linear infinite; }
+        .genome-ring-reverse { animation: spin-slow 25s linear infinite reverse; }
+    </style>
+</head>
+<body class="selection:bg-primary selection:text-surface">
+<!-- Background Void & Atmosphere -->
+<div class="fixed inset-0 z-[-1] bg-background mesh-gradient-1">
+<div class="absolute inset-0 grid-bg opacity-40"></div>
+<div class="absolute top-1/4 left-1/4 w-[800px] h-[800px] rounded-full bg-white/5 blur-[150px] animate-pulse pointer-events-none"></div>
+<div class="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] rounded-full bg-white/5 blur-[120px] pointer-events-none"></div>
+</div>
+<!-- Elite Standalone Navigation 2026 -->
+<div class="fixed left-6 top-1/2 -translate-y-1/2 z-50">
+<nav class="sidebar-container glass-sidebar rounded-48 flex flex-col items-center py-8 gap-6 group overflow-hidden">
+<!-- Logo Section -->
+<div class="mb-8 flex items-center justify-center w-full px-6">
+<div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center flex-shrink-0">
+<span class="material-icons-outlined text-black text-3xl">smart_toy</span>
+</div>
+<div class="label-text">
+<h1 class="text-white font-bold text-xl tracking-tighter">Git AI</h1>
+<p class="text-[10px] text-zinc-500 font-mono tracking-widest uppercase">Elite v2026</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="flex-1 w-full px-3 flex flex-col gap-3">
+<a class="nav-item flex items-center h-14 rounded-full px-4 text-zinc-500 hover:text-white" href="#">
+<span class="material-icons-outlined">dashboard</span>
+<span class="label-text font-medium">Dashboard</span>
+</a>
+<a class="nav-item flex items-center h-14 rounded-full px-4 text-zinc-500 hover:text-white" href="#">
+<span class="material-icons-outlined">account_tree</span>
+<span class="label-text font-medium">Repositories</span>
+</a>
+<a class="nav-item flex items-center h-14 rounded-full px-4 text-zinc-500 hover:text-white" href="#">
+<span class="material-icons-outlined">auto_awesome</span>
+<span class="label-text font-medium">AI Planner</span>
+</a>
+<a class="nav-item active flex items-center h-14 rounded-full px-4 text-white shadow-inner" href="#">
+<span class="material-icons-outlined">person</span>
+<span class="label-text font-medium">Profile Elite</span>
+</a>
+<a class="nav-item flex items-center h-14 rounded-full px-4 text-zinc-500 hover:text-white" href="#">
+<span class="material-icons-outlined">history</span>
+<span class="label-text font-medium">History</span>
+</a>
+</div>
+<!-- User Profile Section -->
+<div class="w-full px-3 pt-6 border-t border-white/5">
+<div class="flex items-center h-16 rounded-full px-2">
+<div class="w-12 h-12 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 border border-white/10 flex items-center justify-center flex-shrink-0">
+<span class="text-white font-bold">A</span>
+</div>
+<div class="user-info ml-4 overflow-hidden">
+<p class="text-sm font-semibold text-white truncate">Alexander</p>
+<p class="text-[10px] text-zinc-500 truncate">@github_admin</p>
+</div>
+<button class="ml-auto text-zinc-500 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-icons-outlined">logout</span>
+</button>
+</div>
+</div>
+</nav>
+</div>
+<!-- Main Content Canvas -->
+<main class="ml-[120px] min-h-screen px-margin-desktop py-gutter max-w-container-max mx-auto">
+<!-- Profile Header Section -->
+<section class="flex flex-col items-center mb-20 text-center">
+<div class="relative mb-8">
+<div class="w-48 h-48 rounded-full p-[2px] bg-gradient-to-b from-white/30 to-transparent flex items-center justify-center glass-card">
+<div class="w-full h-full rounded-full overflow-hidden neumorphic-inset p-2">
+<img class="w-full h-full object-cover rounded-full grayscale contrast-125" data-alt="A high-fidelity cinematic close-up of a sophisticated user avatar with smooth obsidian skin and glowing neon highlights. The character wears a sleek, futuristic high-collared jacket made of liquid-like synthetic fabric. The lighting is dramatic and moody, reflecting a premium dark-mode aesthetic with silver and white rim lighting. The overall style is photorealistic and ultra-modern, perfect for an elite engineering profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAv0pGMkVwpnh3pWgQM9HpEVOAjQz5cmhHosr5BQibrnsn1vQAd40raKK5Pcx0oUngjk1P39uLKbvyjyPICogAKHbt1APGe8kZiHg7Z7HPZ51io4uekn8HkDD4rf7q2djvzYgJwNDGMdYx80dGUy5GyRD13y3hNWjMmUJIYdVkdVIKnXcujsATWqh2d0SkCJxUP_bqXmyWk_xPsrUVEvXfUyR9UKl9wwCoU8vvL8xEbnyYC_TbXayrs"/>
+</div>
+</div>
+<div class="absolute bottom-4 right-4 bg-primary w-10 h-10 rounded-full border-4 border-background flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.5)]">
+<span class="material-symbols-outlined text-background text-[20px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+<h1 class="text-5xl font-bold mb-2 tracking-tighter">Alexander Chen</h1>
+<p class="text-xs text-on-surface-variant uppercase tracking-[0.2em] font-medium">@github_admin · Senior Architect</p>
+<div class="flex gap-4 mt-8">
+<button class="bg-primary text-background px-8 py-3 rounded-full font-bold hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-all active:scale-95 text-sm uppercase tracking-wider">Edit Identity</button>
+<button class="bg-transparent border border-white/20 backdrop-blur-md px-8 py-3 rounded-full font-bold hover:bg-white/10 transition-all text-sm uppercase tracking-wider text-white">Share Vector</button>
+</div>
+</section>
+<!-- Elite Command Center Grid Layout -->
+<div class="grid grid-cols-12 gap-8 mb-section-gap">
+<!-- Stats Grid (Top row) -->
+<div class="col-span-12 grid grid-cols-2 md:grid-cols-4 gap-6">
+<div class="glass-card p-6 flex flex-col justify-between">
+<span class="material-symbols-outlined text-white/50 mb-4 text-3xl">terminal</span>
+<div>
+<div class="text-4xl font-bold tracking-tighter">14,208</div>
+<div class="text-xs text-white/50 uppercase tracking-widest mt-1">Total Commits</div>
+</div>
+</div>
+<div class="glass-card p-6 flex flex-col justify-between">
+<span class="material-symbols-outlined text-white/50 mb-4 text-3xl">smart_toy</span>
+<div>
+<div class="text-4xl font-bold tracking-tighter">842</div>
+<div class="text-xs text-white/50 uppercase tracking-widest mt-1">AI Collabs</div>
+</div>
+</div>
+<div class="glass-card p-6 flex flex-col justify-between">
+<span class="material-symbols-outlined text-white/50 mb-4 text-3xl">bolt</span>
+<div>
+<div class="text-4xl font-bold tracking-tighter">156</div>
+<div class="text-xs text-white/50 uppercase tracking-widest mt-1">Streak (Days)</div>
+</div>
+</div>
+<div class="glass-card p-6 flex flex-col justify-between">
+<span class="material-symbols-outlined text-white/50 mb-4 text-3xl">military_tech</span>
+<div>
+<div class="text-4xl font-bold tracking-tighter">#4</div>
+<div class="text-xs text-white/50 uppercase tracking-widest mt-1">Global Rank</div>
+</div>
+</div>
+</div>
+<!-- Engineering Genome Visualization -->
+<div class="col-span-12 lg:col-span-5 glass-card p-8 flex flex-col relative overflow-hidden">
+<div class="absolute -right-20 -top-20 w-64 h-64 bg-white/5 rounded-full blur-[80px]"></div>
+<h3 class="text-2xl font-bold tracking-tight mb-6 flex items-center gap-3">
+<span class="material-symbols-outlined text-white">fingerprint</span>
+        Engineering Genome
+    </h3>
+<div class="flex-1 flex items-center justify-center relative min-h-[250px]">
+<!-- Circular Data Map -->
+<div class="relative w-48 h-48 flex items-center justify-center">
+<svg class="absolute inset-0 w-full h-full genome-ring text-white/20" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="currentColor" stroke-dasharray="2 4" stroke-width="0.5"></circle>
+<circle cx="50" cy="50" fill="none" r="35" stroke="currentColor" stroke-dasharray="10 5" stroke-width="1"></circle>
+</svg>
+<svg class="absolute inset-0 w-full h-full genome-ring-reverse text-white/40" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="25" stroke="currentColor" stroke-dasharray="15 10 5 10" stroke-width="1.5"></circle>
+<polygon class="opacity-50" fill="none" points="50,15 80,35 80,65 50,85 20,65 20,35" stroke="currentColor" stroke-width="0.5"></polygon>
+</svg>
+<div class="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+<span class="material-symbols-outlined text-white">data_object</span>
+</div>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 justify-center mt-6 relative z-10">
+<span class="vapor-badge px-4 py-1.5 text-[10px] uppercase tracking-widest rounded-full text-white/80">Systems</span>
+<span class="vapor-badge px-4 py-1.5 text-[10px] uppercase tracking-widest rounded-full text-white/80">Architecture</span>
+<span class="vapor-badge px-4 py-1.5 text-[10px] uppercase tracking-widest rounded-full text-primary shadow-[0_0_10px_rgba(255,255,255,0.3)] border-white/40">AI Integration</span>
+</div>
+</div>
+<!-- AI Model Affinity -->
+<div class="col-span-12 lg:col-span-7 glass-card p-8 flex flex-col">
+<div class="flex justify-between items-center mb-8">
+<h3 class="text-2xl font-bold tracking-tight">AI Model Affinity</h3>
+<span class="text-xs text-white/50 uppercase tracking-widest flex items-center gap-2">
+<span class="ai-pulse"></span> Live Telemetry
+        </span>
+</div>
+<div class="space-y-4">
+<!-- High-end Model Card -->
+<div class="neumorphic-inset p-5 rounded-2xl flex items-center justify-between border border-white/5 group hover:border-white/20 transition-all">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-white text-background flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">neurology</span>
+</div>
+<div>
+<h4 class="font-bold tracking-tight group-hover:text-white text-white/90">GPT-4o-Ultra-Quantized</h4>
+<p class="text-[10px] text-white/40 uppercase tracking-widest mt-1">Primary Assistant</p>
+</div>
+</div>
+<div class="text-right">
+<div class="text-lg font-bold">24.5M</div>
+<div class="text-[10px] text-white/40 uppercase tracking-widest mt-1">Tokens Used</div>
+</div>
+<div class="hidden md:block text-right border-l border-white/10 pl-6 ml-2">
+<div class="text-lg font-bold text-white">99.8%</div>
+<div class="text-[10px] text-white/40 uppercase tracking-widest mt-1">Trust Score</div>
+</div>
+</div>
+<div class="neumorphic-inset p-5 rounded-2xl flex items-center justify-between border border-white/5 opacity-70 hover:opacity-100 transition-all">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">code_blocks</span>
+</div>
+<div>
+<h4 class="font-bold tracking-tight text-white/90">Claude-3-Opus-Elite</h4>
+<p class="text-[10px] text-white/40 uppercase tracking-widest mt-1">Code Reviewer</p>
+</div>
+</div>
+<div class="text-right">
+<div class="text-lg font-bold">12.2M</div>
+<div class="text-[10px] text-white/40 uppercase tracking-widest mt-1">Tokens Used</div>
+</div>
+<div class="hidden md:block text-right border-l border-white/10 pl-6 ml-2">
+<div class="text-lg font-bold text-white">96.5%</div>
+<div class="text-[10px] text-white/40 uppercase tracking-widest mt-1">Trust Score</div>
+</div>
+</div>
+</div>
+</div>
+<!-- System Access Hub (Replaces old Settings) -->
+<div class="col-span-12 glass-card p-8 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-[500px] h-full bg-gradient-to-l from-white/5 to-transparent pointer-events-none"></div>
+<div class="flex justify-between items-end mb-10 border-b border-white/10 pb-6">
+<div>
+<h3 class="text-3xl font-bold tracking-tight mb-2">System Access Hub</h3>
+<p class="text-sm text-white/50">Hardware-locked command center controls.</p>
+</div>
+<span class="material-symbols-outlined text-4xl text-white/20">admin_panel_settings</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<p class="font-bold text-lg">AI Training Gate</p>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-background after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white/50 after:border-transparent after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-white peer-checked:after:bg-background"></div>
+</label>
+</div>
+<p class="text-xs text-white/40 leading-relaxed">Restrict models from unauthorized scraping of private repositories and internal tools.</p>
+</div>
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<p class="font-bold text-lg">Neural Sync Pipeline</p>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-background after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white/50 after:border-transparent after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-white peer-checked:after:bg-background"></div>
+</label>
+</div>
+<p class="text-xs text-white/40 leading-relaxed">Real-time bi-directional data flow for automated codebase maintenance.</p>
+</div>
+<div class="flex flex-col justify-center border-t md:border-t-0 md:border-l border-white/10 pt-6 md:pt-0 md:pl-8">
+<button class="w-full py-4 rounded-xl border border-white/20 bg-white/5 text-white font-bold flex items-center justify-center gap-3 hover:bg-white hover:text-background transition-all active:scale-[0.98] uppercase tracking-wider text-sm shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)]">
+<span class="material-symbols-outlined">key</span>
+                Rotate Cryptographic Keys
+            </button>
+<div class="mt-4 flex items-center justify-center gap-2 text-[10px] text-white/40 uppercase tracking-widest">
+<span class="material-symbols-outlined text-[14px]">lock</span> Hardware Locked
+            </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer (Shared Component Anchor) -->
+<footer class="w-full py-gutter border-t border-white/10 flex flex-row justify-between items-center px-6 max-w-container-max mx-auto bg-transparent">
+<div class="flex flex-col gap-2">
+<span class="text-xl font-bold tracking-tighter">Git AI</span>
+<span class="text-xs text-white/40 font-mono uppercase tracking-widest">© 2026 Elite Systems. All rights reserved.</span>
+</div>
+<div class="flex gap-8">
+<a class="text-xs text-white/40 hover:text-white transition-colors uppercase tracking-widest" href="#">Privacy Policy</a>
+<a class="text-xs text-white/40 hover:text-white transition-colors uppercase tracking-widest" href="#">Terms of Service</a>
+<a class="text-xs text-white/40 hover:text-white transition-colors uppercase tracking-widest" href="#">Security</a>
+<a class="text-xs text-white/40 hover:text-white transition-colors uppercase tracking-widest" href="#">System Status</a>
+</div>
+</footer>
+</main>
+<!-- Micro-interaction Scripts -->
+<script>
+        document.querySelectorAll('.glass-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+    </script>
+</body></html>
