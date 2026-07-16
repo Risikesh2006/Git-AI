@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🤖 Git AI
+# Git AI
 
 ### Autonomous AI-Powered GitHub Engineering Manager
 
