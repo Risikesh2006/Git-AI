@@ -3,7 +3,7 @@
 # `python3 ml/predict.py --repo '<json>'` as a one-shot subprocess per scan —
 # there is no second always-on service to deploy or wire up.
 
-FROM node:20-slim
+FROM node:22-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
       python3 python3-venv \
