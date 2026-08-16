@@ -104,217 +104,217 @@ export default function PlannerPage() {
     refactoring: '♻️'
   };
 
-  if (loading) return (
-    <div className="p-8 flex items-center justify-center min-h-64">
-      <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="dp-root">
+        <div className="gc dp-skeleton" style={{ height: 120, borderRadius: 32, marginBottom: 20 }} />
+        <div className="gc dp-skeleton" style={{ height: 460, borderRadius: 40 }} />
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 lg:p-8 max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-1">AI Daily Planner</h1>
-        <p className="text-white/40 text-sm">LM Studio generates your personalized development plan</p>
-      </div>
-
-      {/* Repo Selector */}
-      <div className="glass-card p-5 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
-          <div className="flex-1">
-            <label className="text-white/50 text-xs mb-2 block">Select Repository</label>
-            <select
-              value={selectedRepo}
-              onChange={e => setSelectedRepo(e.target.value)}
-              className="input-glass"
-            >
-              <option value="">Choose a repository...</option>
-              {repos.map(r => (
-                <option key={r.id} value={r.id}>
-                  {r.repo_name} — Priority: {r.priority_score}/100
-                </option>
-              ))}
-            </select>
-          </div>
-          <button
-            onClick={generatePlan}
-            disabled={generating || !selectedRepo}
-            className="btn-primary"
-          >
-            {generating ? (
-              <><div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />Generating...</>
-            ) : (
-              <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>Generate Daily Plan</>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Loading state */}
-      {generating && (
-        <div className="glass-card p-12 text-center mb-6">
-          <div className="w-12 h-12 border-2 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-white font-medium">Generating your development plan...</p>
-          <p className="text-white/40 text-sm mt-2">LM Studio is analyzing {selectedRepoObj?.repo_name}</p>
-        </div>
-      )}
-
-      {/* Plan Output */}
-      {plan && !generating && (
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Tasks List */}
-          <div className="lg:col-span-2 flex flex-col gap-4">
-            <div className="glass-card p-5">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-white font-semibold">Today's Tasks</h2>
-                <span className="text-white/30 text-xs">{plan.tasks.length} tasks</span>
-              </div>
-              <p className="text-white/50 text-sm leading-relaxed border-l-2 border-white/10 pl-3">{plan.summary}</p>
-            </div>
-
-            {plan.tasks.map((task, i) => (
-              <div
-                key={i}
-                className={`glass-card p-5 cursor-pointer transition-all ${selectedTask?.id === task.id ? 'border-white/20' : ''}`}
-                onClick={() => generateTaskImpl(task)}
-              >
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="flex items-start gap-3">
-                    <span className="text-lg">{categoryIcons[task.category] || '📌'}</span>
-                    <div>
-                      <h3 className="text-white font-medium text-sm">{task.title}</h3>
-                      <p className="text-white/40 text-xs mt-1">{task.description}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${priorityColors[task.priority]}`}>
-                      {task.priority}
-                    </span>
-                    <span className="text-white/30 text-xs whitespace-nowrap">~{task.estimated_hours}h</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-3 border-t border-white/5">
-                  <code className="text-white/30 text-xs font-mono truncate">{task.suggested_commit_message}</code>
-                  <button className="text-white/50 hover:text-white text-xs transition-colors flex-shrink-0 ml-2">
-                    View Details →
-                  </button>
-                </div>
-              </div>
-            ))}
-
-            {/* Feedback */}
-            <div className="glass-card p-4 flex items-center gap-3">
-              <span className="text-white/40 text-sm">Mark today's plan as:</span>
-              {['completed', 'ignored', 'modified'].map(action => (
-                <button key={action} onClick={() => submitFeedback(action)} className="btn-secondary text-xs py-1.5 px-3 capitalize">
-                  {action}
-                </button>
-              ))}
+    <div className="dp-root">
+      <div className="dp-inner">
+        <header className="dp-header">
+          <div>
+            <p className="dp-greeting">LM Studio 2.0 Engine</p>
+            <h1 className="dp-title">AI Daily Planner</h1>
+            <div className="dp-status">
+              <span className="dp-status-dot dp-status-dot--on" />
+              <span className="dp-status-text dp-status-text--on">System Online</span>
             </div>
           </div>
+        </header>
 
-          {/* Sidebar: Insights + Task Detail */}
-          <div className="flex flex-col gap-4">
-            {/* Health Insights */}
-            {plan.health_insights.length > 0 && (
-              <div className="glass-card p-5">
-                <h3 className="text-white font-semibold text-sm mb-3">Health Insights</h3>
-                <div className="flex flex-col gap-2">
-                  {plan.health_insights.map((insight, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <span className="text-yellow-400 mt-0.5">⚠</span>
-                      <p className="text-white/50 text-xs">{insight}</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {/* Selector */}
+          <div className="gc pl-selector">
+            <div className="pl-selector-field">
+              <label className="pl-field-label">Select Repository</label>
+              <select value={selectedRepo} onChange={e => setSelectedRepo(e.target.value)} className="input-neu">
+                <option value="">Choose a repository...</option>
+                {repos.map(r => (
+                  <option key={r.id} value={r.id}>{r.repo_name} — Priority: {r.priority_score}/100</option>
+                ))}
+              </select>
+            </div>
+            <button onClick={generatePlan} disabled={generating || !selectedRepo} className="dp-scan-btn">
+              {generating ? (
+                <><div className="dp-spinner" />Generating...</>
+              ) : (
+                <><span className="material-symbols-outlined" style={{ fontSize: 20 }}>auto_awesome</span>Generate Daily Plan</>
+              )}
+            </button>
+          </div>
+
+          {/* Loading state */}
+          {generating && (
+            <div className="gc" style={{ borderRadius: 40, padding: 48, textAlign: 'center' }}>
+              <div className="dp-spinner" style={{ width: 40, height: 40, borderWidth: 3, margin: '0 auto 16px', borderColor: 'rgba(255,255,255,0.2)', borderTopColor: '#fff' }} />
+              <p style={{ color: '#fff', fontWeight: 600 }}>Generating your development plan...</p>
+              <p style={{ color: '#c4c7c8', fontSize: 13, marginTop: 8 }}>LM Studio is analyzing {selectedRepoObj?.repo_name}</p>
+            </div>
+          )}
+
+          {/* Plan Output */}
+          {plan && !generating && (
+            <div className="pl-grid">
+              {/* Tasks */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div className="gc" style={{ borderRadius: 24, padding: 22 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                    <h2 className="pf-card-title" style={{ marginBottom: 0, fontSize: 18 }}>Today&apos;s Tasks</h2>
+                    <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11 }}>{plan.tasks.length} tasks</span>
+                  </div>
+                  <p className="pl-quote">{plan.summary}</p>
+                </div>
+
+                {plan.tasks.map((task, i) => (
+                  <div
+                    key={i}
+                    className={`gc pl-task ${selectedTask?.id === task.id ? 'pl-task--active' : ''}`}
+                    onClick={() => generateTaskImpl(task)}
+                  >
+                    <div className="pl-task-head">
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                        <span style={{ fontSize: 20 }}>{categoryIcons[task.category] || '📌'}</span>
+                        <div>
+                          <h3 className="pl-task-title">{task.title}</h3>
+                          <p className="pl-task-desc">{task.description}</p>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                        <span className={`dp-badge ${priorityColors[task.priority]}`}>{task.priority}</span>
+                        <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11, whiteSpace: 'nowrap' }}>~{task.estimated_hours}h</span>
+                      </div>
                     </div>
+                    <div className="pl-task-foot">
+                      <code style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11, fontFamily: 'JetBrains Mono, monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.suggested_commit_message}</code>
+                      <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, flexShrink: 0, marginLeft: 8 }}>View Details →</span>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="gc" style={{ borderRadius: 20, padding: 16, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13 }}>Mark today&apos;s plan as:</span>
+                  {['completed', 'ignored', 'modified'].map(action => (
+                    <button key={action} onClick={() => submitFeedback(action)} className="btn-secondary" style={{ fontSize: 12, padding: '6px 14px', textTransform: 'capitalize' }}>
+                      {action}
+                    </button>
                   ))}
                 </div>
               </div>
-            )}
 
-            {/* Quick Wins */}
-            {plan.quick_wins.length > 0 && (
-              <div className="glass-card p-5">
-                <h3 className="text-white font-semibold text-sm mb-3">Quick Wins</h3>
-                <div className="flex flex-col gap-2">
-                  {plan.quick_wins.map((win, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <span className="text-green-400 mt-0.5">✓</span>
-                      <p className="text-white/50 text-xs">{win}</p>
+              {/* Sidebar */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {plan.health_insights.length > 0 && (
+                  <div className="gc pl-side-card">
+                    <h3 className="pf-card-title" style={{ fontSize: 16, marginBottom: 14 }}>Health Insights</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {plan.health_insights.map((insight, i) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                          <span style={{ color: '#ffee44', marginTop: 2 }}>⚠</span>
+                          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12 }}>{insight}</p>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Task Detail */}
-            {(selectedTask || generatingTask) && (
-              <div className="glass-card p-5">
-                <h3 className="text-white font-semibold text-sm mb-3">
-                  {selectedTask?.title || 'Loading...'}
-                </h3>
-                {generatingTask ? (
-                  <div className="flex items-center gap-3 py-4">
-                    <div className="w-4 h-4 border border-white/20 border-t-white rounded-full animate-spin" />
-                    <span className="text-white/40 text-sm">Generating implementation...</span>
                   </div>
-                ) : taskImpl ? (
-                  <div className="flex flex-col gap-4">
-                    {taskImpl.detailed_steps?.length > 0 && (
-                      <div>
-                        <p className="text-white/30 text-xs mb-2">Implementation Steps</p>
-                        <ol className="flex flex-col gap-1.5">
-                          {taskImpl.detailed_steps.map((step: string, i: number) => (
-                            <li key={i} className="flex items-start gap-2">
-                              <span className="text-white/20 text-xs font-mono mt-0.5">{i + 1}.</span>
-                              <span className="text-white/60 text-xs">{step}</span>
-                            </li>
-                          ))}
-                        </ol>
+                )}
+
+                {plan.quick_wins.length > 0 && (
+                  <div className="gc pl-side-card">
+                    <h3 className="pf-card-title" style={{ fontSize: 16, marginBottom: 14 }}>Quick Wins</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {plan.quick_wins.map((win, i) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                          <span style={{ color: '#66ffaa', marginTop: 2 }}>✓</span>
+                          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12 }}>{win}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {(selectedTask || generatingTask) && (
+                  <div className="gc pl-side-card">
+                    <h3 className="pf-card-title" style={{ fontSize: 16, marginBottom: 14 }}>{selectedTask?.title || 'Loading...'}</h3>
+                    {generatingTask ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 0' }}>
+                        <div className="dp-spinner" style={{ width: 16, height: 16, borderWidth: 2, borderColor: 'rgba(255,255,255,0.2)', borderTopColor: '#fff' }} />
+                        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>Generating implementation...</span>
                       </div>
-                    )}
-                    {taskImpl.testing_approach && (
-                      <div>
-                        <p className="text-white/30 text-xs mb-1">Testing Approach</p>
-                        <p className="text-white/50 text-xs">{taskImpl.testing_approach}</p>
-                      </div>
-                    )}
-                    {taskImpl.commit_message && (
-                      <div>
-                        <p className="text-white/30 text-xs mb-1">Suggested Commit</p>
-                        <code className="text-white/60 text-xs block bg-white/5 p-2 rounded">{taskImpl.commit_message}</code>
-                      </div>
-                    )}
-                    {taskImpl.code_snippets?.length > 0 && (
-                      <div>
-                        <p className="text-white/30 text-xs mb-2">Code Guidance</p>
-                        {taskImpl.code_snippets.slice(0, 2).map((s: any, i: number) => (
-                          <div key={i} className="mb-2">
-                            <p className="text-white/30 text-[10px] mb-1">{s.filename}</p>
-                            <pre className="bg-white/5 p-2 rounded text-xs text-white/60 overflow-x-auto">{s.code}</pre>
+                    ) : taskImpl ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                        {taskImpl.detailed_steps?.length > 0 && (
+                          <div>
+                            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11, marginBottom: 8 }}>Implementation Steps</p>
+                            <ol style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              {taskImpl.detailed_steps.map((step: string, i: number) => (
+                                <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                                  <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 11, fontFamily: 'JetBrains Mono, monospace', marginTop: 2 }}>{i + 1}.</span>
+                                  <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12 }}>{step}</span>
+                                </li>
+                              ))}
+                            </ol>
                           </div>
-                        ))}
+                        )}
+                        {taskImpl.testing_approach && (
+                          <div>
+                            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11, marginBottom: 4 }}>Testing Approach</p>
+                            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12 }}>{taskImpl.testing_approach}</p>
+                          </div>
+                        )}
+                        {taskImpl.commit_message && (
+                          <div>
+                            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11, marginBottom: 4 }}>Suggested Commit</p>
+                            <code style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', background: 'rgba(255,255,255,0.05)', padding: 8, borderRadius: 8 }}>{taskImpl.commit_message}</code>
+                          </div>
+                        )}
+                        {taskImpl.code_snippets?.length > 0 && (
+                          <div>
+                            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11, marginBottom: 8 }}>Code Guidance</p>
+                            {taskImpl.code_snippets.slice(0, 2).map((s: any, i: number) => (
+                              <div key={i} style={{ marginBottom: 8 }}>
+                                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 10, marginBottom: 4 }}>{s.filename}</p>
+                                <pre className="cm-diff" style={{ maxHeight: 140 }}>{s.code}</pre>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    )}
+                    ) : null}
                   </div>
-                ) : null}
+                )}
               </div>
-            )}
-          </div>
-        </div>
-      )}
+            </div>
+          )}
 
-      {/* Empty state */}
-      {!plan && !generating && (
-        <div className="glass-card p-16 text-center">
-          <div className="text-5xl mb-4">🤖</div>
-          <h2 className="text-white font-semibold text-xl mb-2">Ready to plan your day?</h2>
-          <p className="text-white/40 text-sm mb-6 max-w-sm mx-auto">
-            Select a repository and click "Generate Daily Plan". LM Studio will analyze it and create your personalized development tasks.
-          </p>
-          {repos.length === 0 && (
-            <p className="text-white/30 text-xs">No repositories found. Go to the Dashboard and scan your repos first.</p>
+          {/* Empty state */}
+          {!plan && !generating && (
+            <div className="gc pl-empty">
+              <div className="pl-empty-orb gc">
+                <div className="pl-empty-orb-ring" />
+                <span className="material-symbols-outlined" style={{ fontSize: 48, color: '#fff' }}>smart_toy</span>
+              </div>
+              <div>
+                <h2 className="pf-card-title" style={{ justifyContent: 'center' }}>Ready to plan your day?</h2>
+                <p style={{ color: '#c4c7c8', maxWidth: 420, margin: '0 auto' }}>
+                  Select a repository and click &quot;Generate Daily Plan&quot;. LM Studio will analyze recent commits, issues, and PRs to curate your optimal workflow.
+                </p>
+                {repos.length === 0 && (
+                  <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12, marginTop: 12 }}>No repositories found. Go to the Dashboard and scan your repos first.</p>
+                )}
+                <div className="pl-chip-row">
+                  <div className="pl-chip"><span className="material-symbols-outlined" style={{ color: 'rgba(255,255,255,0.5)' }}>analytics</span><span className="font-mono-label" style={{ fontSize: 10, color: '#c4c7c8', textTransform: 'uppercase' }}>Commit History</span></div>
+                  <div className="pl-chip"><span className="material-symbols-outlined" style={{ color: 'rgba(255,255,255,0.5)' }}>bug_report</span><span className="font-mono-label" style={{ fontSize: 10, color: '#c4c7c8', textTransform: 'uppercase' }}>Issue Priority</span></div>
+                  <div className="pl-chip"><span className="material-symbols-outlined" style={{ color: 'rgba(255,255,255,0.5)' }}>speed</span><span className="font-mono-label" style={{ fontSize: 10, color: '#c4c7c8', textTransform: 'uppercase' }}>Dev Velocity</span></div>
+                </div>
+              </div>
+            </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

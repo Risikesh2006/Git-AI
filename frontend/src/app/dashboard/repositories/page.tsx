@@ -106,167 +106,204 @@ export default function RepositoriesPage() {
     return 'badge-low';
   };
 
+  const totalIssues = repos.reduce((sum, r) => sum + (r.repository_metrics?.[0]?.open_issues ?? 0), 0);
+  const mostRecentScan = repos
+    .map(r => r.last_scanned_at)
+    .filter(Boolean)
+    .sort()
+    .reverse()[0];
+  const lastSyncLabel = mostRecentScan
+    ? `${Math.max(0, Math.round((Date.now() - new Date(mostRecentScan).getTime()) / 60000))}m`
+    : '—';
+
   if (loading) {
     return (
-      <div className="p-8">
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => <div key={i} className="glass-card h-64 skeleton" />)}
+      <div className="dp-root">
+        <div className="dp-stat-grid">
+          {[...Array(3)].map((_, i) => <div key={i} className="gc dp-skeleton" style={{ height: 140, borderRadius: 24 }} />)}
+        </div>
+        <div className="rp-grid" style={{ marginTop: 20 }}>
+          {[...Array(6)].map((_, i) => <div key={i} className="gc dp-skeleton" style={{ height: 260, borderRadius: 24 }} />)}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 lg:p-8 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Repositories</h1>
-          <p className="text-white/40 text-sm mt-1">{repos.length} repositories · sorted by priority</p>
-        </div>
-        <button onClick={handleScanAll} disabled={scanning} className="btn-primary">
-          {scanning ? (
-            <><div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />Scanning...</>
-          ) : (
-            <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>Scan All</>
-          )}
-        </button>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 mb-6">
-        <input
-          type="text"
-          placeholder="Search repositories..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="input-glass max-w-xs"
-        />
-        <select
-          value={sortBy}
-          onChange={e => setSortBy(e.target.value as any)}
-          className="input-glass w-auto"
-        >
-          <option value="priority">Sort: Priority</option>
-          <option value="name">Sort: Name</option>
-          <option value="stars">Sort: Stars</option>
-          <option value="idle">Sort: Most Idle</option>
-        </select>
-        <select
-          value={filterLang}
-          onChange={e => setFilterLang(e.target.value)}
-          className="input-glass w-auto"
-        >
-          {languages.map(l => <option key={l} value={l}>{l === 'all' ? 'All Languages' : l}</option>)}
-        </select>
-      </div>
-
-      {/* Empty state */}
-      {filtered.length === 0 && (
-        <div className="text-center py-20">
-          <p className="text-white/30 text-lg mb-2">No repositories found</p>
-          <p className="text-white/20 text-sm mb-6">
-            {repos.length === 0 ? 'Scan your GitHub repositories to get started.' : 'Try adjusting your filters.'}
-          </p>
-          {repos.length === 0 && (
-            <button onClick={handleScanAll} disabled={scanning} className="btn-primary">
-              Scan Repositories
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Repo Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map(repo => {
-          const m = repo.repository_metrics?.[0];
-          return (
-            <div key={repo.id} className="glass-card p-5 flex flex-col gap-4">
-              {/* Header */}
-              <div className="flex items-start justify-between">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-white font-semibold text-sm truncate">{repo.repo_name}</h3>
-                    {repo.is_private && (
-                      <span className="text-white/30 text-[10px] border border-white/10 px-1.5 py-0.5 rounded">Private</span>
-                    )}
-                  </div>
-                  {repo.description && (
-                    <p className="text-white/40 text-xs leading-relaxed line-clamp-2">{repo.description}</p>
-                  )}
-                </div>
-                <span className={`text-xs px-2 py-0.5 rounded-full ml-2 flex-shrink-0 ${getPriorityClass(repo.priority_score)}`}>
-                  {repo.priority_score}
-                </span>
-              </div>
-
-              {/* Priority bar */}
-              <div>
-                <div className="flex justify-between text-xs text-white/30 mb-1">
-                  <span>Priority Score</span>
-                  <span>{repo.priority_score}/100</span>
-                </div>
-                <div className="progress-bar">
-                  <div className="progress-fill" style={{ width: `${repo.priority_score}%` }} />
-                </div>
-              </div>
-
-              {/* Metrics */}
-              <div className="grid grid-cols-2 gap-2">
-                <MetricPill label="Commits" value={m?.total_commits ?? '—'} />
-                <MetricPill label="Issues" value={m?.open_issues ?? '—'} warn={(m?.open_issues ?? 0) > 5} />
-                <MetricPill label="Tests" value={m?.test_files ?? '—'} />
-                <MetricPill label="Doc Score" value={m ? `${m.documentation_score}%` : '—'} />
-              </div>
-
-              {/* Language & Stats */}
-              <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                <div className="flex items-center gap-2">
-                  {repo.language && (
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 rounded-full" style={{ background: LANG_COLORS[repo.language] || '#888' }} />
-                      <span className="text-white/50 text-xs">{repo.language}</span>
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-3 text-white/30 text-xs">
-                  <span>⭐ {repo.stars}</span>
-                  <span>{m?.days_since_last_commit != null ? `${m.days_since_last_commit}d ago` : '—'}</span>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-2">
-                <Link href="/dashboard/planner" className="btn-secondary flex-1 justify-center text-xs py-2">
-                  Plan →
-                </Link>
-                <Link href="/dashboard/commit" className="btn-secondary text-xs py-2 px-3">
-                  Commit
-                </Link>
-                <button
-                  onClick={() => handleScanOne(repo.id)}
-                  disabled={scanningId === repo.id}
-                  className="btn-secondary text-xs py-2 px-3"
-                  title="Re-scan this repository"
-                >
-                  {scanningId === repo.id ? (
-                    <div className="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : '↻'}
-                </button>
-              </div>
+    <div className="dp-root">
+      <div className="dp-inner">
+        {/* Header */}
+        <header className="dp-header">
+          <div>
+            <p className="dp-greeting">Engineering Ecosystem</p>
+            <h1 className="dp-title">Repositories</h1>
+            <div className="dp-status">
+              <span className="dp-status-dot dp-status-dot--on" />
+              <span className="dp-status-text dp-status-text--on">
+                {repos.length} repositories tracked · sorted by {sortBy}
+              </span>
             </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+          </div>
+          <button onClick={handleScanAll} disabled={scanning} className="dp-scan-btn">
+            {scanning ? (
+              <><div className="dp-spinner" />Scanning...</>
+            ) : (
+              <><span className="material-symbols-outlined" style={{ fontSize: 20 }}>refresh</span>Scan All</>
+            )}
+          </button>
+        </header>
 
-function MetricPill({ label, value, warn = false }: { label: string; value: any; warn?: boolean }) {
-  return (
-    <div className="bg-white/[0.03] rounded-lg px-3 py-2">
-      <p className="text-white/30 text-[10px] mb-0.5">{label}</p>
-      <p className={`text-sm font-semibold ${warn ? 'text-red-400' : 'text-white'}`}>{value}</p>
+        {/* Stat cards */}
+        <div className="dp-stat-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+          <div className="gc dp-stat-card">
+            <div className="dp-stat-top">
+              <span className="dp-stat-label">Total Repos</span>
+              <span className="material-symbols-outlined dp-stat-icon">account_tree</span>
+            </div>
+            <div className="dp-stat-value-row"><span className="dp-stat-value">{repos.length}</span></div>
+            <p className="dp-stat-caption">Connected to your GitHub account</p>
+          </div>
+          <div className="gc dp-stat-card">
+            <div className="dp-stat-top">
+              <span className="dp-stat-label">Open Issues</span>
+              <span className="material-symbols-outlined dp-stat-icon">bug_report</span>
+            </div>
+            <div className="dp-stat-value-row"><span className="dp-stat-value">{totalIssues}</span></div>
+            <p className="dp-stat-caption">Across all connected repositories</p>
+          </div>
+          <div className="gc dp-stat-card">
+            <div className="dp-stat-top">
+              <span className="dp-stat-label">Last Sync</span>
+              <span className="material-symbols-outlined dp-stat-icon">schedule</span>
+            </div>
+            <div className="dp-stat-value-row"><span className="dp-stat-value">{lastSyncLabel}</span></div>
+            <p className="dp-stat-caption">{mostRecentScan ? 'ago' : 'No scans yet'}</p>
+          </div>
+        </div>
+
+        {/* Content panel */}
+        <section className="gc" style={{ borderRadius: 32, marginTop: 20, overflow: 'hidden' }}>
+          <div className="dg-toolbar">
+            <div className="dg-search-wrap">
+              <span className="material-symbols-outlined dg-search-icon">search</span>
+              <input
+                type="text"
+                placeholder="Search repositories..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="input-neu"
+              />
+            </div>
+            <select value={sortBy} onChange={e => setSortBy(e.target.value as any)} className="input-neu" style={{ width: 'auto', minWidth: 160 }}>
+              <option value="priority">Sort: Priority</option>
+              <option value="name">Sort: Name</option>
+              <option value="stars">Sort: Stars</option>
+              <option value="idle">Sort: Most Idle</option>
+            </select>
+            <select value={filterLang} onChange={e => setFilterLang(e.target.value)} className="input-neu" style={{ width: 'auto', minWidth: 160 }}>
+              {languages.map(l => <option key={l} value={l}>{l === 'all' ? 'All Languages' : l}</option>)}
+            </select>
+          </div>
+
+          <div style={{ padding: 28 }}>
+            {filtered.length === 0 ? (
+              <div className="dp-empty">
+                <div className="dp-empty-icon-wrap">
+                  <div className="dp-empty-glow" />
+                  <div className="dp-empty-icon-ring gc">
+                    <span className="material-symbols-outlined dp-empty-icon">folder_open</span>
+                  </div>
+                </div>
+                <h3 className="dp-empty-title">{repos.length === 0 ? 'Scan Repositories' : 'No repositories found'}</h3>
+                <p className="dp-empty-desc">
+                  {repos.length === 0
+                    ? 'To begin monitoring your engineering ecosystem, connect your GitHub account and perform an initial scan.'
+                    : 'Try adjusting your search or filters.'}
+                </p>
+                {repos.length === 0 && (
+                  <button onClick={handleScanAll} disabled={scanning} className="dp-scan-now-btn gc">
+                    {scanning ? 'Scanning...' : 'Scan Repositories'}
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="rp-grid">
+                {filtered.map(repo => {
+                  const m = repo.repository_metrics?.[0];
+                  return (
+                    <div key={repo.id} className="gc rp-card">
+                      <div className="rp-card-top">
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span className="rp-name" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{repo.repo_name}</span>
+                            {repo.is_private && <span className="rp-priv-badge">Private</span>}
+                          </div>
+                          {repo.description && <p className="rp-desc" style={{ marginTop: 6 }}>{repo.description}</p>}
+                        </div>
+                        <span className={`dp-badge ${getPriorityClass(repo.priority_score)}`}>{repo.priority_score}</span>
+                      </div>
+
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 6 }}>
+                          <span>Priority Score</span>
+                          <span>{repo.priority_score}/100</span>
+                        </div>
+                        <div className="dp-bar-track" style={{ width: '100%' }}>
+                          <div className="dp-bar-fill liquid-fill" style={{ width: `${repo.priority_score}%` }} />
+                        </div>
+                      </div>
+
+                      <div className="rp-metric-grid">
+                        <div className="rp-metric"><p className="rp-metric-label">Commits</p><p className="rp-metric-value">{m?.total_commits ?? '—'}</p></div>
+                        <div className="rp-metric"><p className="rp-metric-label">Issues</p><p className="rp-metric-value" style={{ color: (m?.open_issues ?? 0) > 5 ? '#ff6666' : '#fff' }}>{m?.open_issues ?? '—'}</p></div>
+                        <div className="rp-metric"><p className="rp-metric-label">Tests</p><p className="rp-metric-value">{m?.test_files ?? '—'}</p></div>
+                        <div className="rp-metric"><p className="rp-metric-label">Doc Score</p><p className="rp-metric-value">{m ? `${m.documentation_score}%` : '—'}</p></div>
+                      </div>
+
+                      <div className="rp-footer-row">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          {repo.language && (
+                            <>
+                              <span className="rp-lang-dot" style={{ background: LANG_COLORS[repo.language] || '#888' }} />
+                              <span>{repo.language}</span>
+                            </>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <span>⭐ {repo.stars}</span>
+                          <span>{m?.days_since_last_commit != null ? `${m.days_since_last_commit}d ago` : '—'}</span>
+                        </div>
+                      </div>
+
+                      <div className="rp-actions">
+                        <Link href="/dashboard/planner" className="btn-secondary" style={{ flex: 1, justifyContent: 'center', fontSize: 12, padding: '8px 12px' }}>
+                          Plan →
+                        </Link>
+                        <Link href="/dashboard/commit" className="btn-secondary" style={{ fontSize: 12, padding: '8px 12px' }}>
+                          Commit
+                        </Link>
+                        <button
+                          onClick={() => handleScanOne(repo.id)}
+                          disabled={scanningId === repo.id}
+                          className="btn-secondary"
+                          style={{ fontSize: 12, padding: '8px 12px' }}
+                          title="Re-scan this repository"
+                        >
+                          {scanningId === repo.id ? (
+                            <div style={{ width: 12, height: 12, border: '2px solid rgba(255,255,255,0.25)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                          ) : (
+                            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>refresh</span>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

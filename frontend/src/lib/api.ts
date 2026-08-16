@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { supabase } from '@/lib/supabase/client';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -8,14 +9,15 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' }
 });
 
-// Inject Supabase session token
+// Inject Supabase session token.
+//
+// Uses the shared client from lib/supabase/client. Previously this created a new
+// client per request, which spawned a fresh GoTrueClient (and its own refresh
+// timer) on every API call against the same storage key — the cause of the
+// "Multiple GoTrueClient instances detected" warning and of intermittent
+// sign-outs under concurrent requests.
 api.interceptors.request.use(async (config) => {
   try {
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
-    );
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.access_token) {
       config.headers.Authorization = `Bearer ${session.access_token}`;

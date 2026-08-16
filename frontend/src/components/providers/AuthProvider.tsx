@@ -1,12 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
-);
+import { supabase, GITHUB_OAUTH_SCOPES } from '@/lib/supabase/client';
 
 interface User {
   id: string;
@@ -104,7 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
-        scopes: 'read:user user:email repo',
+        scopes: GITHUB_OAUTH_SCOPES,
         redirectTo: `${window.location.origin}/auth/callback`
       }
     });

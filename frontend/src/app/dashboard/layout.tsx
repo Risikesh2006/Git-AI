@@ -13,6 +13,7 @@ const navItems = [
   { href: '/dashboard/planner', label: 'AI Planner', icon: 'auto_awesome' },
   { href: '/dashboard/commit', label: 'Commit Assistant', icon: 'terminal' },
   { href: '/dashboard/history', label: 'History', icon: 'history' },
+  { href: '/dashboard/profile', label: 'Profile', icon: 'person' },
 ];
 
 function SidebarContent({
