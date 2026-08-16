@@ -1,8 +1,8 @@
 <div align="center">
 
-# 🤖 Git AI
+# Git AI
 
-### Autonomous AI-Powered GitHub Engineering Manager
+### Autonomous AI-Powered GitHub Engineering Manager 
 
 > Your personal AI engineering manager that watches over your GitHub repositories, tells you what to work on next, and helps you ship real code — safely, and only with your approval.
 
