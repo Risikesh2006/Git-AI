@@ -49,16 +49,16 @@ export const aiAPI = {
   getAIStatus: () => api.get('/api/ai/status'),
 };
 
-// Git APIs
+// Git APIs — changes are written straight to GitHub via the Contents/Git Data API,
+// no local clone. Every mutating call requires approved: true.
 export const gitAPI = {
   getStatus: (repoId: string) => api.get('/api/git/status', { params: { repoId } }),
-  prepare: (repoId: string, taskDescription?: string) => api.post('/api/git/prepare', { repoId, taskDescription }),
-  commit: (repoId: string, commitMessage: string) =>
-    api.post('/api/git/commit', { repoId, commitMessage, approved: true }),
-  push: (repoId: string) =>
-    api.post('/api/git/push', { repoId, approved: true }),
-  commitAndPush: (repoId: string, commitMessage: string) =>
-    api.post('/api/git/commit-and-push', { repoId, commitMessage, approved: true }),
+  prepare: (repoId: string, taskDescription: string | undefined, files: { path: string; newContent: string }[]) =>
+    api.post('/api/git/prepare', { repoId, taskDescription, files }),
+  commit: (repoId: string, commitMessage: string, files: { path: string; newContent: string }[], branchName?: string) =>
+    api.post('/api/git/commit', { repoId, commitMessage, files, branchName, approved: true }),
+  openPullRequest: (repoId: string, branchName: string, title: string, body?: string) =>
+    api.post('/api/git/pull-request', { repoId, branchName, title, body, approved: true }),
   getHistory: () => api.get('/api/git/history'),
 };
 

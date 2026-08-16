@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import './dashboard.css';
 
 // List of navigation items displayed in the sidebar along with their routing endpoints and icons
@@ -144,7 +145,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main content */}
       <main className="dash-main">
-        {children}
+        <ErrorBoundary fallbackTitle="This page hit an error">{children}</ErrorBoundary>
       </main>
     </div>
   );

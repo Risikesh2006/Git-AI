@@ -38,7 +38,7 @@ router.post('/daily-plan', authenticate, async (req, res) => {
       recent_commits_30d: repo.repository_metrics?.[0]?.recent_commits_30d || 0
     };
 
-    const plan = await aiService.generateDevelopmentPlan(metrics, repo.priority_score);
+    const plan = await aiService.generateDevelopmentPlan(metrics, repo.priority_score, userId);
 
     // Save recommendation to database
     await supabase.from('ai_recommendations').insert({
@@ -85,7 +85,7 @@ router.post('/generate-task', authenticate, async (req, res) => {
       description: repo.description
     };
 
-    const implementation = await aiService.generateTaskImplementation(task, metrics);
+    const implementation = await aiService.generateTaskImplementation(task, metrics, req.user.id);
 
     // Save task
     await supabase.from('tasks').insert({
@@ -110,7 +110,7 @@ router.post('/commit-message', authenticate, async (req, res) => {
     const { diff, repoName, taskDescription } = req.body;
     if (!repoName) return res.status(400).json({ error: 'repoName required' });
 
-    const message = await aiService.generateCommitMessage(diff || '', repoName, taskDescription || '');
+    const message = await aiService.generateCommitMessage(diff || '', repoName, taskDescription || '', req.user.id);
     res.json({ message });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -133,7 +133,7 @@ router.get('/portfolio-health', authenticate, async (req, res) => {
       stars: r.stars || 0
     }));
 
-    const health = await aiService.generateHealthReport(repoMetrics);
+    const health = await aiService.generateHealthReport(repoMetrics, req.user.id);
     res.json(health);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -200,23 +200,75 @@ router.put('/tasks/:id', authenticate, async (req, res) => {
   }
 });
 
-// GET /api/ai/status - Check LM Studio connection
+// GET /api/ai/status - Three-state AI backend status: local (free, private) / cloud fallback / unavailable
 router.get('/status', async (req, res) => {
+  const axios = require('axios');
+  const lmUrl = process.env.LM_STUDIO_URL || 'http://localhost:1234';
+  let localConnected = false;
+  let models = [];
+
   try {
-    const axios = require('axios');
-    const url = process.env.LM_STUDIO_URL || 'http://localhost:1234';
-    const response = await axios.get(`${url}/v1/models`, { timeout: 3000 });
+    const response = await axios.get(`${lmUrl}/v1/models`, { timeout: 3000 });
+    localConnected = true;
+    models = response.data?.data || [];
+  } catch {
+    localConnected = false;
+  }
+
+  const forced = process.env.CLOUD_LLM_PROVIDER;
+  const geminiSet = Boolean(process.env.GEMINI_API_KEY);
+  const anthropicSet = Boolean(process.env.ANTHROPIC_API_KEY);
+  // Mirrors services/ai.js's resolveCloudProvider(): Gemini (free tier) preferred
+  // unless CLOUD_LLM_PROVIDER forces a choice.
+  const cloudProvider = forced === 'anthropic' && anthropicSet ? 'anthropic'
+    : forced === 'gemini' && geminiSet ? 'gemini'
+    : geminiSet ? 'gemini'
+    : anthropicSet ? 'anthropic'
+    : null;
+
+  const backend = localConnected ? 'local' : (cloudProvider ? 'cloud' : 'unavailable');
+
+  res.json({
+    connected: localConnected || Boolean(cloudProvider),
+    backend, // 'local' | 'cloud' | 'unavailable'
+    local: { connected: localConnected, url: lmUrl, models },
+    cloud: {
+      configured: Boolean(cloudProvider),
+      provider: cloudProvider, // 'gemini' | 'anthropic' | null
+      model: cloudProvider === 'gemini'
+        ? (process.env.GEMINI_MODEL || 'gemini-2.5-flash')
+        : (process.env.CLOUD_LLM_MODEL || 'claude-sonnet-5')
+    }
+  });
+});
+
+// GET /api/ai/usage - Current user's LLM spend, for the per-user cap in the planner UI
+router.get('/usage', authenticate, async (req, res) => {
+  try {
+    const since = new Date();
+    since.setDate(since.getDate() - 30);
+
+    const { data, error } = await supabase
+      .from('usage_events')
+      .select('provider, estimated_cost_usd, created_at')
+      .eq('user_id', req.user.id)
+      .eq('event_type', 'llm_call')
+      .gte('created_at', since.toISOString());
+
+    if (error) throw error;
+
+    const totalCostUsd = (data || []).reduce((sum, e) => sum + Number(e.estimated_cost_usd || 0), 0);
+    const cloudCalls = (data || []).filter(e => e.provider === 'anthropic').length;
+    const localCalls = (data || []).filter(e => e.provider === 'lm_studio').length;
+
     res.json({
-      connected: true,
-      models: response.data?.data || [],
-      url
+      period_days: 30,
+      total_cost_usd: Math.round(totalCostUsd * 1000) / 1000,
+      cloud_calls: cloudCalls,
+      local_calls: localCalls
     });
   } catch (err) {
-    res.json({
-      connected: false,
-      error: 'LM Studio not running. Start LM Studio and load a model.',
-      url: process.env.LM_STUDIO_URL || 'http://localhost:1234'
-    });
+    res.status(500).json({ error: err.message });
   }
 });
 

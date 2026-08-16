@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../services/supabase');
 const { authenticate } = require('../middleware/auth');
+const { encrypt } = require('../services/tokenCrypto');
 
 // GET /api/auth/github-url - Get GitHub OAuth URL
 router.get('/github-url', (req, res) => {
@@ -47,7 +48,7 @@ router.get('/callback', async (req, res) => {
         name: githubUser.name || githubUser.login,
         email: githubUser.email,
         avatar_url: githubUser.avatar_url,
-        github_access_token: githubToken,
+        github_access_token: encrypt(githubToken),
         updated_at: new Date().toISOString()
       }, { onConflict: 'github_id' })
       .select()

@@ -1,6 +1,9 @@
+const axios = require('axios');
 const supabase = require('./supabase');
 
-// Priority calculation algorithm (used when ML model is unavailable)
+// Priority calculation algorithm — fallback when the ML microservice (ml-service/)
+// is unset or unreachable. Kept in sync with the model's feature set so the two
+// scores stay roughly comparable.
 function calculatePriorityScore(metrics) {
   let score = 0;
 
@@ -31,6 +34,35 @@ function calculatePriorityScore(metrics) {
   return Math.round(Math.min(100, score));
 }
 
+// Tries the trained Random Forest model (ml-service/) first, falls back to the JS
+// heuristic above on any failure — a model outage should never block a scan.
+async function getPriorityScore(metrics) {
+  const mlUrl = process.env.ML_SERVICE_URL;
+  if (mlUrl) {
+    try {
+      const { data } = await axios.post(`${mlUrl}/predict`, {
+        repository_name: metrics.repository_name,
+        days_since_last_commit: metrics.days_since_last_commit,
+        total_commits: metrics.total_commits,
+        num_files: metrics.num_files,
+        open_issues: metrics.open_issues,
+        test_files: metrics.test_files,
+        documentation_score: metrics.documentation_score,
+        stars: metrics.stars,
+        forks: metrics.forks,
+        recent_commits_30d: metrics.recent_commits_30d,
+        repo_size_kb: metrics.repo_size_kb,
+        project_age_days: metrics.project_age_days,
+        language: metrics.language
+      }, { timeout: 3000 });
+      return { score: data.priority_score, source: 'ml', insights: data.insights || [] };
+    } catch (err) {
+      console.warn('[Priority] ML service unavailable, falling back to heuristic:', err.message);
+    }
+  }
+  return { score: calculatePriorityScore(metrics), source: 'heuristic', insights: [] };
+}
+
 class RepositoryService {
   async getUserRepos(userId) {
     const { data, error } = await supabase
@@ -47,6 +79,7 @@ class RepositoryService {
     const repoData = {
       user_id: userId,
       repo_name: metrics.repository_name,
+      repo_owner: metrics.repo_owner,
       description: metrics.description,
       language: metrics.language,
       html_url: metrics.html_url,
@@ -149,4 +182,4 @@ class RepositoryService {
   }
 }
 
-module.exports = { RepositoryService: new RepositoryService(), calculatePriorityScore };
+module.exports = { RepositoryService: new RepositoryService(), calculatePriorityScore, getPriorityScore };

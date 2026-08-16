@@ -83,6 +83,7 @@ class GitHubService {
   }
 
   async scanRepository(owner, repoName) {
+    const repoOwner = owner;
     console.log(`[Scanner] Scanning ${owner}/${repoName}...`);
     const now = new Date();
 
@@ -134,6 +135,7 @@ class GitHubService {
 
     const metrics = {
       repository_name: repoData.name || repoName,
+      repo_owner: repoOwner,
       description: repoData.description || '',
       language: repoData.language || 'Unknown',
       created_date: repoData.created_at,

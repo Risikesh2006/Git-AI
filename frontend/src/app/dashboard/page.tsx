@@ -90,7 +90,11 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const [stats, setStats] = useState<HealthStats | null>(null);
   const [repos, setRepos] = useState<Repo[]>([]);
-  const [aiStatus, setAiStatus] = useState<{ connected: boolean } | null>(null);
+  const [aiStatus, setAiStatus] = useState<{
+    connected: boolean;
+    backend: 'local' | 'cloud' | 'unavailable';
+    cloud?: { provider: 'gemini' | 'anthropic' | null; model: string };
+  } | null>(null);
   const [scanning, setScanning] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -210,10 +214,12 @@ export default function DashboardPage() {
             <div className="dp-status">
               <span className={`dp-status-dot ${aiStatus?.connected ? 'dp-status-dot--on' : 'dp-status-dot--off'}`} />
               <span className={`dp-status-text ${aiStatus?.connected ? 'dp-status-text--on' : 'dp-status-text--off'}`}>
-                LM Studio:{' '}
-                {aiStatus?.connected
-                  ? 'Connected'
-                  : 'Not Connected — Start LM Studio and load a model'}
+                AI Backend:{' '}
+                {aiStatus?.backend === 'local'
+                  ? 'Local (LM Studio) — private, free'
+                  : aiStatus?.backend === 'cloud'
+                  ? `Cloud fallback (${aiStatus.cloud?.provider === 'gemini' ? 'Gemini' : 'Claude'}) — LM Studio unreachable`
+                  : 'Unavailable — start LM Studio or configure a cloud key'}
               </span>
             </div>
           </div>

@@ -1,0 +1,74 @@
+## Render Blueprint — deploys the stateless Express backend and the ML scoring
+## microservice as two independent services. Apply via Render's "New Blueprint
+## Instance" pointed at this repo. Secrets marked sync: false must be set once
+## in the Render dashboard after the blueprint is created — they are not
+## committed here.
+##
+## The frontend is NOT deployed by this file — deploy it separately on Vercel
+## (native Next.js support), with its root directory set to `frontend/`.
+
+services:
+  - type: web
+    name: gitai-backend
+    runtime: node
+    plan: starter
+    region: oregon
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: false # deploys are triggered by .github/workflows/deploy.yml after CI passes
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8000
+      - key: FRONTEND_URL
+        sync: false # your Vercel production URL
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+      - key: GITHUB_CALLBACK_URL
+        sync: false
+      - key: LM_STUDIO_URL
+        value: http://localhost:1234 # per-user local tunnel; see README — most users hit the cloud fallback instead
+      - key: GEMINI_API_KEY
+        sync: false # free tier — preferred automatically over Anthropic when both are set
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: CLOUD_LLM_MODEL
+        value: claude-sonnet-5
+      # `hostport` resolves to Render's internal host:port with no scheme — Render
+      # internal service traffic is always plain HTTP, so this needs an explicit
+      # http:// prefix. Render doesn't support string-templating env values in
+      # the blueprint format, so set this one manually in the dashboard after
+      # first deploy using the value `hostport` resolved to (visible in the
+      # backend service's Environment tab), prefixed with http://.
+      - key: ML_SERVICE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: TOKEN_ENCRYPTION_KEY
+        generateValue: true
+      - key: SENTRY_DSN
+        sync: false
+
+  - type: web
+    name: gitai-ml-service
+    runtime: python
+    plan: starter
+    region: oregon
+    rootDir: ml-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: false

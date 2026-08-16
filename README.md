@@ -94,25 +94,27 @@ Raw metrics alone don't tell you what to work on — that's the job of the ML pi
 
 This score is what powers the ranking you see on the dashboard — it's a genuine trained model, not a hardcoded formula, so it improves as you feed it more labeled data.
 
-### 4. Planning — where the local LLM comes in
+### 4. Planning — local-first, with a cloud fallback
 
-Numbers alone aren't a plan. This is where **LM Studio** (running an LLM entirely on your own machine — Llama, Mistral, or Qwen) comes in:
+Numbers alone aren't a plan. Git AI tries **LM Studio** (an LLM running entirely on your own machine — Llama, Mistral, or Qwen) first, and only falls back to a cloud model when LM Studio is unreachable:
 
 1. When you request a plan (`POST /api/ai/daily-plan`), the backend's `services/ai.js` bundles up the scored repository data — priorities, open issues, recent activity — into a prompt.
-2. That prompt is sent to your local LM Studio server (default `http://localhost:1234`).
-3. The model reasons over the data and returns a **structured, prioritized daily plan** in natural language: which repos to touch today, what specifically to do, and why it matters.
-4. If you want more detail on one plan item, `POST /api/ai/generate-task` expands it into a fully-specified task with suggested approach and context.
+2. It probes your local LM Studio server (default `http://localhost:1234`). If it answers, the prompt goes there and your data never leaves your machine.
+3. If LM Studio is unreachable (or unset — the common case for other users of a hosted deployment), the same prompt goes to a cloud model instead (Claude Sonnet 5 by default, configurable via `CLOUD_LLM_MODEL`). `GET /api/ai/status` reports which backend is currently active — `local`, `cloud`, or `unavailable` — so the UI never claims privacy it isn't providing.
+4. The model reasons over the data and returns a **structured, prioritized daily plan** in natural language: which repos to touch today, what specifically to do, and why it matters.
+5. If you want more detail on one plan item, `POST /api/ai/generate-task` expands it into a fully-specified task with suggested approach and context.
 
-Because this all happens locally, your repository data and prompts never leave your machine to reach a third-party AI API.
+Every cloud call is logged to `usage_events` with an estimated cost, and `GET /api/ai/usage` reports your last-30-days spend — the lever for a future per-user cap.
 
 ### 5. Implementation & the Commit Assistant
 
-Once you know what to work on, you make the actual code changes yourself (or with the help of your own editor/AI tools) inside the repository. When you're ready to save your progress:
+Once you know what to work on, propose the file changes you want to make — either by hand in the Commit Assistant UI, or from an AI-generated task's suggested content:
 
-1. `POST /api/git/prepare` runs `simple-git` against the local repo to gather the current diff and status.
-2. `POST /api/ai/commit-message` sends that diff to the local LLM, which drafts a clear, conventional commit message summarizing the change.
+1. `POST /api/git/prepare` fetches each proposed file's current content straight from GitHub (Contents API) and builds an in-memory unified diff against it — no local clone, no server disk. This also means the backend is stateless and safe to run as multiple instances.
+2. `POST /api/ai/commit-message` sends that diff to the active LLM backend (local or cloud), which drafts a clear, conventional commit message.
 3. You review the diff and the generated message in the **Commit Assistant** UI.
-4. Only when you click **approve** does the backend call `POST /api/git/commit`, `POST /api/git/push`, or the combined `POST /api/git/commit-and-push` endpoint to actually run the git operation.
+4. Only when you click **approve** does the backend call `POST /api/git/commit`, which writes the change straight to GitHub via the Git Data API (atomic multi-file commits: blobs → tree → commit → ref update) — by default onto a new feature branch, not directly to `main`.
+5. Optionally, `POST /api/git/pull-request` opens a PR from that branch for review before it ever reaches the default branch.
 
 **There is no code path in Git AI that commits or pushes without this explicit, per-action approval step.**
 
@@ -132,28 +134,21 @@ Every scan, generated plan, and git action is logged, viewable in the **History*
                      ┌─────────────────────┐
                      │   GitHub Account     │
                      └──────────┬──────────┘
-                                │ OAuth + REST API
+                                │ OAuth + REST + Contents/Git Data API
                                 ▼
- ┌───────────────┐     ┌──────────────────┐     ┌────────────────────┐
- │   Frontend     │◄──►│     Backend       │◄──►│      Supabase       │
- │  (Next.js 15)  │     │ (Node/Express)   │     │  (Auth + Postgres)  │
- └───────────────┘     └────────┬─────────┘     └────────────────────┘
-                                │
-                 ┌──────────────┼───────────────┐
-                 ▼                              ▼
-        ┌─────────────────┐           ┌───────────────────┐
-        │  Python ML       │           │   LM Studio        │
-        │  (Random Forest) │           │  (local LLM)        │
-        │  Priority Score  │           │  Daily Plan / Tasks │
-        └─────────────────┘           └───────────────────┘
-                 │                              │
-                 └──────────────┬───────────────┘
-                                ▼
-                     ┌─────────────────────┐
-                     │   Commit Assistant   │
-                     │  (simple-git + PR)   │
-                     │  ✅ requires approval │
-                     └─────────────────────┘
+ ┌───────────────┐     ┌──────────────────────┐     ┌────────────────────┐
+ │   Frontend     │◄──►│  Backend (stateless)  │◄──►│      Supabase       │
+ │  (Next.js 15)  │     │  Node/Express, N inst. │     │  (Auth + Postgres)  │
+ └───────────────┘     └──────────┬───────────┘     └────────────────────┘
+                                   │
+              ┌────────────────────┼─────────────────┬────────────────────┐
+              ▼                    ▼                 ▼                    ▼
+     ┌─────────────────┐  ┌──────────────────┐  ┌───────────┐   ┌───────────────────┐
+     │ ML microservice   │  │   LM Studio        │  │  Claude    │   │  Commit Assistant   │
+     │ (FastAPI, Random  │  │  (local LLM,       │  │  (cloud    │   │  (GitHub API only,  │
+     │  Forest priority)  │  │   tried first)     │  │  fallback) │   │  no local clone)    │
+     └─────────────────┘  └──────────────────┘  └───────────┘   │  ✅ requires approval │
+                                                                     └───────────────────┘
 ```
 
 ## Tech Stack
@@ -164,9 +159,10 @@ Every scan, generated plan, and git action is logged, viewable in the **History*
 | Backend | Node.js, Express.js |
 | Database | Supabase (PostgreSQL) |
 | Auth | Supabase OAuth (GitHub) |
-| Machine Learning | Python, scikit-learn, Random Forest |
-| Generative AI | LM Studio (local LLM — Llama, Mistral, Qwen, etc.) |
-| Git Automation | simple-git, GitHub REST API |
+| Machine Learning | Python, scikit-learn, Random Forest — served by a small FastAPI microservice (`ml-service/`) |
+| Generative AI | LM Studio (local, tried first) with Claude Sonnet 5 as a cloud fallback via the Anthropic SDK |
+| Git Automation | GitHub Contents + Git Data API (no local clone — stateless backend) |
+| Observability | pino structured logging, Sentry (optional, `SENTRY_DSN`) |
 
 ## Project Structure
 
@@ -188,34 +184,45 @@ Git AI/
 │       │   └── ui/Toaster.tsx
 │       └── lib/api.ts                    # API client
 │
-├── backend/                       # Node.js + Express
+├── backend/                       # Node.js + Express (stateless)
 │   ├── server.js                  # Main server entry point
 │   ├── routes/
 │   │   ├── auth.js                # GitHub OAuth, user management
 │   │   ├── repositories.js        # Scan, list, priority endpoints
-│   │   ├── ai.js                  # LM Studio integration endpoints
-│   │   ├── git.js                 # Commit & push automation endpoints
+│   │   ├── ai.js                  # AI planning + status/usage endpoints
+│   │   ├── git.js                 # GitHub-API commit/PR endpoints
 │   │   └── feedback.js            # Learning & pattern endpoints
 │   ├── services/
-│   │   ├── github.js              # GitHub API service
-│   │   ├── ai.js                  # LM Studio AI service
-│   │   ├── git.js                 # Git automation service
-│   │   └── repository.js          # Supabase repository service
-│   └── middleware/
-│       └── auth.js                # Supabase JWT verification
+│   │   ├── github.js              # GitHub scanning service (Octokit)
+│   │   ├── githubCommit.js        # Commit/PR via Contents + Git Data API
+│   │   ├── ai.js                  # LM Studio + Claude fallback
+│   │   ├── repository.js          # Priority scoring (ML service + JS fallback)
+│   │   ├── tokenCrypto.js         # AES-256-GCM token encryption
+│   │   ├── logger.js              # Structured (pino) logging
+│   │   └── errorTracking.js       # Optional Sentry wrapper
+│   ├── middleware/
+│   │   └── auth.js                # Supabase JWT verification
+│   └── __tests__/                 # Jest unit + route tests
 │
-├── ml/                             # Python ML Pipeline
+├── ml/                             # Python ML training pipeline
 │   ├── scanner.py                  # GitHub repository scanner
 │   ├── feature_engineering.py      # ML feature preparation
-│   ├── train.py                    # Random Forest training script
-│   ├── predict.py                  # Priority prediction script
+│   ├── train.py                    # Random Forest / Gradient Boosting training
+│   ├── predict.py                  # Priority prediction (CLI)
+│   ├── test_predict.py             # Regression test
 │   └── dataset/
 │       └── training_data.csv       # Training dataset
 │
-├── models/                         # Trained ML model artifacts
-│   └── priority_model.pkl          # Generated after training
+├── ml-service/                     # FastAPI microservice serving the trained model
+│   └── main.py                     # /predict, /health
 │
-└── supabase_schema.sql             # Complete database schema
+├── models/                         # Trained ML model artifacts (generated, not committed)
+│
+├── supabase/migrations/            # Versioned schema changes (Supabase CLI)
+├── supabase_schema.sql             # Base database schema
+├── render.yaml                     # Backend + ML service deploy blueprint (Render)
+├── DEPLOYMENT.md                   # Manual account/secrets setup checklist
+└── .github/workflows/              # CI (typecheck/lint/build/test) + deploy triggers
 ```
 
 ## Prerequisites
@@ -224,8 +231,10 @@ Git AI/
 - **Python 3.9+** — for the ML pipeline
 - **Git** — installed and configured with your credentials
 - **A Supabase account** — free tier is sufficient
-- **LM Studio** — downloaded, with at least one local model loaded
+- **LM Studio** — downloaded, with at least one local model loaded (optional if you set an `ANTHROPIC_API_KEY` for the cloud fallback instead)
 - **A GitHub OAuth App** — created under your GitHub account settings
+
+> **Deploying this for real users, not just local dev?** See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for the production checklist — Supabase paid tier, Render (backend + ML service), Vercel (frontend), and the account/secrets setup none of this automation can do for you.
 
 ## Setup Instructions
 
@@ -360,21 +369,24 @@ The trained model artifact is saved to `models/priority_model.pkl` and picked up
 | GET | `/api/ai/portfolio-health` | Get an AI-generated summary of portfolio health |
 | GET | `/api/ai/status` | Check LM Studio connection status |
 | GET | `/api/git/status` | Get current git repository status |
-| POST | `/api/git/prepare` | Prepare a repo and retrieve a diff for review |
-| POST | `/api/git/commit` | Commit staged changes (**requires user approval**) |
-| POST | `/api/git/push` | Push committed changes (**requires user approval**) |
-| POST | `/api/git/commit-and-push` | Commit and push in one step (**requires user approval**) |
+| POST | `/api/git/prepare` | Preview an in-memory diff for proposed file changes, straight from GitHub |
+| POST | `/api/git/commit` | Commit proposed files to a branch via the Git Data API (**requires user approval**) |
+| POST | `/api/git/pull-request` | Open a PR from a branch created by `/api/git/commit` (**requires user approval**) |
+| GET | `/api/ai/usage` | Last-30-days cloud LLM spend for the current user |
 | POST | `/api/feedback` | Submit feedback on a completed task |
 | GET | `/api/feedback/patterns` | Retrieve learned feedback patterns |
 
 ## Security & Privacy
 
-- **No autonomous pushes** — every commit and push requires explicit user confirmation in the UI.
-- **Local-first AI** — the LLM runs locally via LM Studio, so code and prompts never leave your machine for planning/generation.
-- **Row Level Security (RLS)** — GitHub tokens and user data are stored in Supabase with RLS policies enforced.
-- **JWT-authenticated API** — every backend endpoint verifies a Supabase-issued JWT before processing requests.
+- **No autonomous pushes** — every commit, branch, and PR requires explicit user confirmation in the UI.
+- **Local-first AI, with an honest fallback** — LM Studio is tried first for every AI call; only when it's unreachable does the request go to a cloud model (Claude Sonnet 5), and `/api/ai/status` reports which backend answered so the UI never claims local-only privacy it isn't providing.
+- **Stateless backend, no local git** — commits are written via the GitHub API, so no repository ever touches server disk and the backend can run as multiple instances without any shared state.
+- **Encrypted tokens at rest** — GitHub access tokens are AES-256-GCM encrypted before being stored in Supabase, so a database leak alone doesn't hand out live GitHub access.
+- **Row Level Security (RLS)** — every table is scoped to `auth.uid()`; the backend's service-role key bypasses RLS, so every query also explicitly filters by the authenticated user's ID as a second layer.
+- **Per-user rate limiting** — the API rate limiter keys on the authenticated user (decoded from the JWT), not IP, so one active user or shared NAT can't starve everyone else.
+- **JWT-authenticated API** — every protected backend endpoint verifies a Supabase-issued JWT before processing requests.
 - **No hardcoded secrets** — all credentials are supplied via environment variables, never committed to source control.
-- **Rate limiting** — applied across all API endpoints to prevent abuse.
+- **Per-user usage tracking** — cloud LLM calls are logged with an estimated cost per user (`/api/ai/usage`), the basis for a spend cap on a multi-user deployment.
 
 ## Troubleshooting
 
@@ -389,13 +401,17 @@ The trained model artifact is saved to `models/priority_model.pkl` and picked up
 
 ## Roadmap
 
+- [x] Optional cloud LLM fallback alongside local LM Studio
+- [x] Stateless, GitHub-API-based commit engine (no local clone)
+- [x] Trained priority model wired into the backend (with a JS-heuristic fallback)
+- [x] CI (typecheck, lint, build, test) on every PR
 - [ ] Multi-user team dashboards
 - [ ] Support for GitLab and Bitbucket repositories
 - [ ] Slack/Discord daily plan notifications
 - [ ] Configurable scoring weights per user
-- [ ] Optional cloud LLM fallback alongside local LM Studio
-- [ ] CI/CD integration for automatic test-ratio and build-health signals
+- [ ] Automatic test-ratio and build-health signals in CI
 - [ ] Mobile-friendly dashboard view
+- [ ] GitHub App installation (narrower token scopes than the current OAuth flow)
 
 ## Contributing
 

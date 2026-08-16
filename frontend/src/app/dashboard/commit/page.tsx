@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { repoAPI, gitAPI, aiAPI } from '@/lib/api';
 import { toast } from '@/components/ui/Toaster';
 
-type Stage = 'select' | 'prepare' | 'review' | 'confirm' | 'done';
+type Stage = 'select' | 'review' | 'confirm' | 'done';
 
 interface Repo {
   id: string;
@@ -14,22 +14,36 @@ interface Repo {
   default_branch?: string;
 }
 
-interface GitStatus {
-  branch: string;
-  modified: string[];
-  untracked: string[];
-  deleted: string[];
+interface FileEdit {
+  path: string;
+  newContent: string;
+}
+
+interface FilePreview {
+  path: string;
+  exists: boolean;
+  diff: string;
   has_changes: boolean;
-  diff_summary: string;
 }
 
 interface PrepareData {
   repo_name: string;
   branch: string;
-  status: GitStatus;
-  diff: string;
+  files: FilePreview[];
   suggested_commit_message: string;
   has_changes: boolean;
+}
+
+interface CommitResult {
+  commit: string;
+  branch: string;
+  is_feature_branch?: boolean;
+  pr?: { number: number; url: string; state: string };
+}
+
+function apiErrorMessage(err: unknown, fallback: string): string {
+  const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
+  return message || fallback;
 }
 
 export default function CommitPage() {
@@ -42,10 +56,11 @@ export default function CommitPage() {
   const [prepareData, setPrepareData] = useState<PrepareData | null>(null);
   const [commitMessage, setCommitMessage] = useState('');
   const [taskDescription, setTaskDescription] = useState('');
-  const [commitResult, setCommitResult] = useState<any>(null);
-  const [pushAfterCommit, setPushAfterCommit] = useState(true);
+  const [commitResult, setCommitResult] = useState<CommitResult | null>(null);
+  const [openPr, setOpenPr] = useState(true);
   const [generatingMsg, setGeneratingMsg] = useState(false);
   const [approved, setApproved] = useState(false);
+  const [fileEdits, setFileEdits] = useState<FileEdit[]>([{ path: '', newContent: '' }]);
 
   useEffect(() => {
     repoAPI.getAll()
@@ -58,16 +73,27 @@ export default function CommitPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const updateFileEdit = (i: number, patch: Partial<FileEdit>) => {
+    setFileEdits(prev => prev.map((f, idx) => (idx === i ? { ...f, ...patch } : f)));
+  };
+  const addFileEdit = () => setFileEdits(prev => [...prev, { path: '', newContent: '' }]);
+  const removeFileEdit = (i: number) => setFileEdits(prev => prev.filter((_, idx) => idx !== i));
+
   const handlePrepare = async () => {
     if (!selectedRepo) return;
+    const files = fileEdits.filter(f => f.path.trim());
+    if (files.length === 0) {
+      toast.error('Add at least one file path and its new content');
+      return;
+    }
     setPreparing(true);
     try {
-      const { data } = await gitAPI.prepare(selectedRepo, taskDescription);
+      const { data } = await gitAPI.prepare(selectedRepo, taskDescription, files);
       setPrepareData(data);
       setCommitMessage(data.suggested_commit_message || '');
       setStage('review');
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error || 'Failed to prepare repository. Is the repo cloneable?');
+    } catch (err) {
+      toast.error(apiErrorMessage(err, 'Failed to preview changes against GitHub.'));
     } finally {
       setPreparing(false);
     }
@@ -77,40 +103,42 @@ export default function CommitPage() {
     if (!prepareData) return;
     setGeneratingMsg(true);
     try {
-      const { data } = await aiAPI.generateCommitMessage(
-        prepareData.diff || '',
-        prepareData.repo_name,
-        taskDescription
-      );
+      const combinedDiff = prepareData.files.map(f => f.diff).join('\n');
+      const { data } = await aiAPI.generateCommitMessage(combinedDiff, prepareData.repo_name, taskDescription);
       setCommitMessage(data.message);
-    } catch (err: any) {
+    } catch {
       toast.error('Failed to generate commit message');
     } finally {
       setGeneratingMsg(false);
     }
   };
 
-  const handleCommitAndPush = async () => {
+  const handleCommit = async () => {
     if (!approved || !selectedRepo || !commitMessage.trim()) {
       toast.error('Please approve the action and provide a commit message');
       return;
     }
-
     setCommitting(true);
     try {
-      let result;
-      if (pushAfterCommit) {
-        const { data } = await gitAPI.commitAndPush(selectedRepo, commitMessage);
-        result = data;
-      } else {
-        const { data } = await gitAPI.commit(selectedRepo, commitMessage);
-        result = data;
+      const files = fileEdits.filter(f => f.path.trim());
+      const { data: commitData }: { data: CommitResult } = await gitAPI.commit(selectedRepo, commitMessage, files);
+
+      let result: CommitResult = commitData;
+      if (openPr && commitData.is_feature_branch) {
+        const { data: prData } = await gitAPI.openPullRequest(
+          selectedRepo,
+          commitData.branch,
+          commitMessage,
+          taskDescription
+        );
+        result = { ...commitData, pr: prData };
       }
+
       setCommitResult(result);
       setStage('done');
-      toast.success(`Successfully ${pushAfterCommit ? 'committed & pushed' : 'committed'} to ${prepareData?.branch}!`);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error || 'Commit failed. Check repository access.');
+      toast.success(`Committed to ${commitData.branch}${result.pr ? ' and opened a PR' : ''}!`);
+    } catch (err) {
+      toast.error(apiErrorMessage(err, 'Commit failed. Check repository access.'));
     } finally {
       setCommitting(false);
     }
@@ -123,6 +151,7 @@ export default function CommitPage() {
     setTaskDescription('');
     setCommitResult(null);
     setApproved(false);
+    setFileEdits([{ path: '', newContent: '' }]);
   };
 
   if (loading) {
@@ -147,11 +176,13 @@ export default function CommitPage() {
               </div>
             </div>
             <h1 className="dp-title">Commit Assistant</h1>
-            <p style={{ color: '#c4c7c8', maxWidth: 560, marginTop: 4 }}>AI-generated commit messages · Requires your approval before pushing</p>
+            <p style={{ color: '#c4c7c8', maxWidth: 560, marginTop: 4 }}>
+              Changes are written straight to GitHub via the API — no local clone. AI-generated commit
+              messages. Requires your approval before anything reaches your repository.
+            </p>
           </div>
         </header>
 
-        {/* Approval Notice */}
         <div className="gc cm-banner" style={{ marginBottom: 20 }}>
           <div className="cm-banner-icon">
             <span className="material-symbols-outlined" style={{ fontSize: 24 }}>verified_user</span>
@@ -159,15 +190,15 @@ export default function CommitPage() {
           <div>
             <h3 className="font-mono-label" style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#fff', marginBottom: 4 }}>Approval Required</h3>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, lineHeight: 1.6 }}>
-              Git AI will never commit or push without your explicit approval. You can review and edit every message before finalizing changes to the remote repository.
+              Git AI will never commit without your explicit approval. Changes land on a feature branch by
+              default — review the diff, then choose whether to open a pull request.
             </p>
           </div>
         </div>
 
-        {/* Stage: Select */}
-        {(stage === 'select' || stage === 'prepare') && (
+        {stage === 'select' && (
           <div className="gc cm-panel">
-            <h2 className="pf-card-title">Select Repository &amp; Describe Task</h2>
+            <h2 className="pf-card-title">Select Repository &amp; Propose Changes</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
               <div>
                 <label className="pl-field-label">Repository</label>
@@ -179,71 +210,90 @@ export default function CommitPage() {
                 </select>
               </div>
               <div>
-                <label className="pl-field-label">Contribution Details (optional — helps AI write a better commit message)</label>
+                <label className="pl-field-label">Task Description (optional — helps AI write a better commit message)</label>
                 <textarea
                   value={taskDescription}
                   onChange={e => setTaskDescription(e.target.value)}
-                  placeholder="What did you work on? e.g. Implemented memory search feature with timeline filtering..."
+                  placeholder="What are you changing? e.g. Fix the null check in the auth middleware..."
                   className="input-neu"
-                  style={{ minHeight: 120 }}
+                  style={{ minHeight: 80 }}
                 />
               </div>
+
+              <div>
+                <label className="pl-field-label">Files to change</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {fileEdits.map((f, i) => (
+                    <div key={i} className="gc" style={{ padding: 14, borderRadius: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <input
+                          type="text"
+                          value={f.path}
+                          onChange={e => updateFileEdit(i, { path: e.target.value })}
+                          placeholder="path/to/file.ts"
+                          className="input-neu"
+                          style={{ fontFamily: 'JetBrains Mono, monospace', flex: 1 }}
+                        />
+                        {fileEdits.length > 1 && (
+                          <button onClick={() => removeFileEdit(i)} className="btn-secondary" style={{ fontSize: 12 }}>Remove</button>
+                        )}
+                      </div>
+                      <textarea
+                        value={f.newContent}
+                        onChange={e => updateFileEdit(i, { newContent: e.target.value })}
+                        placeholder="Full new content of the file"
+                        className="input-neu"
+                        style={{ minHeight: 140, fontFamily: 'JetBrains Mono, monospace', fontSize: 13 }}
+                      />
+                    </div>
+                  ))}
+                  <button onClick={addFileEdit} className="btn-secondary" style={{ width: 'fit-content', fontSize: 12 }}>+ Add another file</button>
+                </div>
+              </div>
+
               <button onClick={handlePrepare} disabled={preparing || !selectedRepo} className="dp-scan-btn" style={{ width: 'fit-content' }}>
                 {preparing ? (
-                  <><div className="dp-spinner" />Cloning &amp; Preparing...</>
+                  <><div className="dp-spinner" />Fetching current file state...</>
                 ) : (
-                  <><span className="material-symbols-outlined" style={{ fontSize: 20 }}>arrow_forward</span>Prepare &amp; Review Changes</>
+                  <><span className="material-symbols-outlined" style={{ fontSize: 20 }}>arrow_forward</span>Preview Diff</>
                 )}
               </button>
             </div>
           </div>
         )}
 
-        {/* Stage: Review */}
         {stage === 'review' && prepareData && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             <div className="gc" style={{ borderRadius: 20, padding: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
                 <p style={{ color: '#fff', fontWeight: 700 }}>{prepareData.repo_name}</p>
-                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>Branch: <code style={{ color: 'rgba(255,255,255,0.6)' }}>{prepareData.branch}</code></p>
+                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>Base branch: <code style={{ color: 'rgba(255,255,255,0.6)' }}>{prepareData.branch}</code></p>
               </div>
-              <button onClick={reset} className="btn-secondary" style={{ fontSize: 13 }}>← Change Repo</button>
+              <button onClick={reset} className="btn-secondary" style={{ fontSize: 13 }}>← Start Over</button>
             </div>
 
             {!prepareData.has_changes && (
               <div className="gc" style={{ borderRadius: 28, padding: 48, textAlign: 'center' }}>
                 <p style={{ color: '#66ffaa', fontSize: 40, marginBottom: 12 }}>✓</p>
-                <p style={{ color: '#fff', fontWeight: 700, marginBottom: 8 }}>No uncommitted changes</p>
-                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>The repository is clean. Make some changes first, then return here to commit.</p>
+                <p style={{ color: '#fff', fontWeight: 700, marginBottom: 8 }}>No changes detected</p>
+                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>The proposed content matches what&apos;s already on GitHub.</p>
               </div>
             )}
 
             {prepareData.has_changes && (
               <>
-                <div className="gc cm-panel">
-                  <h3 className="pf-card-title" style={{ fontSize: 16 }}>Changed Files</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    {prepareData.status.modified.map(f => (
-                      <div key={f} className="cm-file-row"><span className="cm-file-tag" style={{ color: '#ffee44' }}>M</span><code style={{ color: 'rgba(255,255,255,0.6)' }}>{f}</code></div>
-                    ))}
-                    {prepareData.status.untracked.map(f => (
-                      <div key={f} className="cm-file-row"><span className="cm-file-tag" style={{ color: '#66ffaa' }}>A</span><code style={{ color: 'rgba(255,255,255,0.6)' }}>{f}</code></div>
-                    ))}
-                    {prepareData.status.deleted.map(f => (
-                      <div key={f} className="cm-file-row"><span className="cm-file-tag" style={{ color: '#ff6666' }}>D</span><code style={{ color: 'rgba(255,255,255,0.6)' }}>{f}</code></div>
-                    ))}
-                  </div>
-                </div>
-
-                {prepareData.diff && (
-                  <div className="gc cm-panel">
-                    <h3 className="pf-card-title" style={{ fontSize: 16 }}>Diff Preview</h3>
+                {prepareData.files.map(f => (
+                  <div key={f.path} className="gc cm-panel">
+                    <h3 className="pf-card-title" style={{ fontSize: 16 }}>
+                      <span className="cm-file-tag" style={{ color: f.exists ? '#ffee44' : '#66ffaa' }}>{f.exists ? 'M' : 'A'}</span>{' '}
+                      <code>{f.path}</code>
+                    </h3>
                     <pre className="cm-diff">
-                      {prepareData.diff.slice(0, 3000)}
-                      {prepareData.diff.length > 3000 && '\n... (truncated)'}
+                      {f.diff.slice(0, 3000)}
+                      {f.diff.length > 3000 && '\n... (truncated)'}
                     </pre>
                   </div>
-                )}
+                ))}
 
                 <div className="gc cm-panel">
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -265,8 +315,8 @@ export default function CommitPage() {
 
                 <div className="gc cm-panel">
                   <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', marginBottom: 18 }}>
-                    <input type="checkbox" checked={pushAfterCommit} onChange={e => setPushAfterCommit(e.target.checked)} className="w-4 h-4 accent-white" />
-                    <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>Push to remote after commit</span>
+                    <input type="checkbox" checked={openPr} onChange={e => setOpenPr(e.target.checked)} className="w-4 h-4 accent-white" />
+                    <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>Open a pull request from the new branch (recommended)</span>
                   </label>
 
                   <div className="cm-approve-box">
@@ -275,8 +325,8 @@ export default function CommitPage() {
                       <div>
                         <p style={{ color: '#fff', fontSize: 14, fontWeight: 700 }}>I approve this commit</p>
                         <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginTop: 4 }}>
-                          I confirm I want to commit &quot;{commitMessage}&quot; to {prepareData.repo_name}/{prepareData.branch}
-                          {pushAfterCommit ? ' and push to GitHub.' : '.'}
+                          I confirm I want to commit &quot;{commitMessage}&quot; to a new branch on {prepareData.repo_name}
+                          {openPr ? ' and open a pull request.' : '.'}
                         </p>
                       </div>
                     </label>
@@ -285,15 +335,15 @@ export default function CommitPage() {
 
                 <div style={{ display: 'flex', gap: 12 }}>
                   <button
-                    onClick={handleCommitAndPush}
+                    onClick={handleCommit}
                     disabled={committing || !approved || !commitMessage.trim()}
                     className="dp-scan-btn"
                     style={{ flex: 1, justifyContent: 'center', opacity: !approved ? 0.5 : 1, cursor: !approved ? 'not-allowed' : 'pointer' }}
                   >
                     {committing ? (
-                      <><div className="dp-spinner" />{pushAfterCommit ? 'Committing & Pushing...' : 'Committing...'}</>
+                      <><div className="dp-spinner" />{openPr ? 'Committing & Opening PR...' : 'Committing...'}</>
                     ) : (
-                      <><span className="material-symbols-outlined" style={{ fontSize: 20 }}>rocket_launch</span>{pushAfterCommit ? 'Commit & Push to GitHub' : 'Commit Only'}</>
+                      <><span className="material-symbols-outlined" style={{ fontSize: 20 }}>rocket_launch</span>{openPr ? 'Commit & Open PR' : 'Commit to Branch'}</>
                     )}
                   </button>
                   <button onClick={reset} className="btn-secondary">Cancel</button>
@@ -303,22 +353,21 @@ export default function CommitPage() {
           </div>
         )}
 
-        {/* Stage: Done */}
         {stage === 'done' && commitResult && (
           <div className="gc" style={{ borderRadius: 28, padding: 48, textAlign: 'center' }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>🎉</div>
             <h2 style={{ color: '#fff', fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
-              {commitResult.pushed ? 'Committed & Pushed!' : 'Committed Successfully!'}
+              {commitResult.pr ? 'Committed & PR Opened!' : 'Committed Successfully!'}
             </h2>
             <div className="gc" style={{ padding: 18, borderRadius: 16, display: 'inline-block', marginTop: 16, marginBottom: 24, textAlign: 'left' }}>
               <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginBottom: 4 }}>Commit</p>
               <code style={{ color: '#fff', fontSize: 14, fontFamily: 'JetBrains Mono, monospace' }}>{commitResult.commit}</code>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 10, marginBottom: 4 }}>Message</p>
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>{commitResult.message}</p>
-              {commitResult.branch && (
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 10, marginBottom: 4 }}>Branch</p>
+              <code style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>{commitResult.branch}</code>
+              {commitResult.pr && (
                 <>
-                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 10, marginBottom: 4 }}>Branch</p>
-                  <code style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>{commitResult.branch}</code>
+                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 10, marginBottom: 4 }}>Pull Request</p>
+                  <a href={commitResult.pr.url} target="_blank" rel="noreferrer" style={{ color: '#66ffaa', fontSize: 14 }}>#{commitResult.pr.number} →</a>
                 </>
               )}
             </div>

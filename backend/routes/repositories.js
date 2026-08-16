@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { authenticate } = require('../middleware/auth');
 const GitHubService = require('../services/github');
-const { RepositoryService, calculatePriorityScore } = require('../services/repository');
+const { RepositoryService, getPriorityScore } = require('../services/repository');
 const supabase = require('../services/supabase');
+const { decrypt } = require('../services/tokenCrypto');
 
 // Helper: get GitHub token for user
 async function getGitHubToken(userId) {
@@ -13,7 +14,7 @@ async function getGitHubToken(userId) {
     .eq('id', userId)
     .single();
   if (error || !data?.github_access_token) throw new Error('GitHub not connected. Please connect your GitHub account.');
-  return data.github_access_token;
+  return decrypt(data.github_access_token);
 }
 
 // GET /api/repositories - Get all repositories for user
@@ -49,7 +50,7 @@ router.post('/scan', authenticate, async (req, res) => {
           try {
             const [owner, repoName] = [repo.owner.login, repo.name];
             const metrics = await github.scanRepository(owner, repoName);
-            const priorityScore = calculatePriorityScore(metrics);
+            const { score: priorityScore } = await getPriorityScore(metrics);
             const saved = await RepositoryService.upsertRepository(userId, metrics, priorityScore);
             return { success: true, name: repoName, priority: priorityScore };
           } catch (e) {
@@ -108,7 +109,7 @@ router.post('/:id/scan', authenticate, async (req, res) => {
     const github = new GitHubService(token);
     const githubUser = await github.getUser();
     const metrics = await github.scanRepository(githubUser.login, repo.repo_name);
-    const priorityScore = calculatePriorityScore(metrics);
+    const { score: priorityScore } = await getPriorityScore(metrics);
     const saved = await RepositoryService.upsertRepository(userId, metrics, priorityScore);
 
     res.json({ ...saved, priority_score: priorityScore });
@@ -134,7 +135,7 @@ router.put('/:id/importance', authenticate, async (req, res) => {
       .single();
 
     const metrics = repo?.repository_metrics?.[0] || {};
-    const basePriority = calculatePriorityScore(metrics);
+    const { score: basePriority } = await getPriorityScore(metrics);
     const adjustedPriority = Math.round((basePriority * 0.7) + (importance_score * 0.3));
 
     await RepositoryService.updatePriority(req.params.id, adjustedPriority, importance_score);

@@ -1,94 +1,91 @@
 const express = require('express');
 const router = express.Router();
 const { authenticate } = require('../middleware/auth');
-const gitService = require('../services/git');
+const GitHubCommitService = require('../services/githubCommit');
 const aiService = require('../services/ai');
 const supabase = require('../services/supabase');
+const { decrypt } = require('../services/tokenCrypto');
 
-async function getGitHubToken(userId) {
-  const { data } = await supabase
+// GitHub operations run entirely through the GitHub API (Contents + Git Data API) —
+// no local clone, no server disk. The backend stays stateless across instances.
+
+async function getGitHubContext(userId, repoId) {
+  const { data: userData } = await supabase
     .from('users')
     .select('github_access_token, github_username, name, email')
     .eq('id', userId)
     .single();
-  if (!data?.github_access_token) throw new Error('GitHub not connected');
-  return data;
+  if (!userData?.github_access_token) throw new Error('GitHub not connected');
+
+  const { data: repo } = await supabase
+    .from('repositories')
+    .select('*')
+    .eq('id', repoId)
+    .eq('user_id', userId)
+    .single();
+  if (!repo) throw new Error('Repository not found');
+
+  const token = decrypt(userData.github_access_token);
+  const owner = repo.repo_owner || userData.github_username;
+  return {
+    token,
+    owner,
+    repoName: repo.repo_name,
+    repo,
+    author: { name: userData.name || userData.github_username, email: userData.email || `${userData.github_username}@users.noreply.github.com` }
+  };
 }
 
-// GET /api/git/status - Get git status of a repo
+// GET /api/git/status - Get current repo status from GitHub (recent commits, default branch)
 router.get('/status', authenticate, async (req, res) => {
   try {
     const { repoId } = req.query;
     if (!repoId) return res.status(400).json({ error: 'repoId required' });
 
-    const userData = await getGitHubToken(req.user.id);
-    const { data: repo } = await supabase
-      .from('repositories')
-      .select('*')
-      .eq('id', repoId)
-      .eq('user_id', req.user.id)
-      .single();
+    const { token, owner, repoName } = await getGitHubContext(req.user.id, repoId);
+    const gitService = new GitHubCommitService(token);
+    const status = await gitService.getRepoStatus(owner, repoName);
 
-    if (!repo) return res.status(404).json({ error: 'Repository not found' });
-
-    const repoPath = await gitService.getRepoPath(
-      repo.clone_url,
-      repo.repo_name,
-      userData.github_access_token
-    );
-
-    const status = await gitService.getStatus(repoPath);
-    const log = await gitService.getLog(repoPath, 5);
-
-    res.json({ ...status, recent_commits: log, repo_name: repo.repo_name, branch: repo.default_branch });
+    res.json({ ...status, repo_name: repoName });
   } catch (err) {
     console.error('[Git] Status error:', err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// POST /api/git/prepare - Prepare repo and get diff for review
+// POST /api/git/prepare - Preview an in-memory diff for proposed file changes and draft a commit message
+// Body: { repoId, taskDescription, files: [{ path, newContent }] }
 router.post('/prepare', authenticate, async (req, res) => {
   try {
-    const { repoId, taskDescription } = req.body;
+    const { repoId, taskDescription, files } = req.body;
     if (!repoId) return res.status(400).json({ error: 'repoId required' });
+    if (!Array.isArray(files) || files.length === 0) {
+      return res.status(400).json({ error: 'files (array of {path, newContent}) required' });
+    }
 
-    const userData = await getGitHubToken(req.user.id);
-    const { data: repo } = await supabase
-      .from('repositories')
-      .select('*')
-      .eq('id', repoId)
-      .eq('user_id', req.user.id)
-      .single();
+    const { token, owner, repoName, repo } = await getGitHubContext(req.user.id, repoId);
+    const gitService = new GitHubCommitService(token);
+    const branch = repo.default_branch || (await gitService.getDefaultBranch(owner, repoName));
 
-    if (!repo) return res.status(404).json({ error: 'Repository not found' });
+    const previews = await gitService.previewChanges(owner, repoName, files, branch);
+    const combinedDiff = previews.map(p => p.diff).join('\n');
+    const hasChanges = previews.some(p => p.has_changes);
 
-    const repoPath = await gitService.getRepoPath(
-      repo.clone_url,
-      repo.repo_name,
-      userData.github_access_token
-    );
-
-    const status = await gitService.getStatus(repoPath);
-    const diff = await gitService.getDiff(repoPath);
-
-    // Generate AI commit message
     let suggestedMessage = '';
-    if (status.has_changes) {
+    if (hasChanges) {
       try {
-        suggestedMessage = await aiService.generateCommitMessage(diff, repo.repo_name, taskDescription || '');
+        suggestedMessage = await aiService.generateCommitMessage(combinedDiff, repoName, taskDescription || '', req.user.id);
       } catch (e) {
-        suggestedMessage = `chore: update ${repo.repo_name}`;
+        suggestedMessage = `chore: update ${previews.length} file(s) in ${repoName}`;
       }
     }
 
     res.json({
-      repo_name: repo.repo_name,
-      branch: status.branch || repo.default_branch,
-      status,
-      diff: diff.substring(0, 10000), // Limit diff size
+      repo_name: repoName,
+      branch,
+      files: previews,
       suggested_commit_message: suggestedMessage,
-      has_changes: status.has_changes
+      has_changes: hasChanges
     });
   } catch (err) {
     console.error('[Git] Prepare error:', err);
@@ -96,10 +93,11 @@ router.post('/prepare', authenticate, async (req, res) => {
   }
 });
 
-// POST /api/git/commit - Commit changes (requires user approval)
+// POST /api/git/commit - Commit files to a (new or existing) branch via the Git Data API
+// Requires explicit user approval. Body: { repoId, files, commitMessage, approved, branchName? }
 router.post('/commit', authenticate, async (req, res) => {
   try {
-    const { repoId, commitMessage, approved } = req.body;
+    const { repoId, files, commitMessage, approved, branchName } = req.body;
 
     if (!approved) {
       return res.status(400).json({
@@ -107,52 +105,38 @@ router.post('/commit', authenticate, async (req, res) => {
         message: 'Set approved: true to confirm the commit'
       });
     }
-
-    if (!repoId || !commitMessage) {
-      return res.status(400).json({ error: 'repoId and commitMessage required' });
+    if (!repoId || !commitMessage || !Array.isArray(files) || files.length === 0) {
+      return res.status(400).json({ error: 'repoId, commitMessage, and files are required' });
     }
 
-    const userData = await getGitHubToken(req.user.id);
-    const { data: repo } = await supabase
-      .from('repositories')
-      .select('*')
-      .eq('id', repoId)
-      .eq('user_id', req.user.id)
-      .single();
+    const { token, owner, repoName, repo, author } = await getGitHubContext(req.user.id, repoId);
+    const gitService = new GitHubCommitService(token);
+    const defaultBranch = repo.default_branch || (await gitService.getDefaultBranch(owner, repoName));
 
-    if (!repo) return res.status(404).json({ error: 'Repository not found' });
+    // Commits land on a feature branch by default rather than the default branch directly —
+    // safer for a multi-user product than pushing straight to main.
+    const targetBranch = branchName || `gitai/${Date.now()}`;
+    if (targetBranch !== defaultBranch) {
+      await gitService.createBranch(owner, repoName, targetBranch, defaultBranch);
+    }
 
-    const repoPath = await gitService.getRepoPath(
-      repo.clone_url,
-      repo.repo_name,
-      userData.github_access_token
-    );
+    const result = await gitService.commitFiles(owner, repoName, targetBranch, files, commitMessage, author);
 
-    // Stage all changes
-    await gitService.stageAll(repoPath);
-
-    // Commit
-    const result = await gitService.commit(
-      repoPath,
-      commitMessage,
-      userData.name || userData.github_username,
-      userData.email || `${userData.github_username}@users.noreply.github.com`
-    );
-
-    // Save to database
     await supabase.from('commits').insert({
       user_id: req.user.id,
       repo_id: repoId,
-      commit_hash: result.commit,
+      commit_hash: result.commit_sha,
       commit_message: commitMessage,
+      pushed: true,
       committed_at: new Date().toISOString()
     });
 
     res.json({
       success: true,
-      commit: result.commit,
+      commit: result.commit_sha,
       message: commitMessage,
-      summary: result.summary
+      branch: targetBranch,
+      is_feature_branch: targetBranch !== defaultBranch
     });
   } catch (err) {
     console.error('[Git] Commit error:', err);
@@ -160,123 +144,30 @@ router.post('/commit', authenticate, async (req, res) => {
   }
 });
 
-// POST /api/git/push - Push to remote (requires approval)
-router.post('/push', authenticate, async (req, res) => {
+// POST /api/git/pull-request - Open a PR from a feature branch created by /commit
+router.post('/pull-request', authenticate, async (req, res) => {
   try {
-    const { repoId, approved } = req.body;
+    const { repoId, branchName, title, body, approved } = req.body;
 
     if (!approved) {
-      return res.status(400).json({
-        error: 'User approval required',
-        message: 'Set approved: true to confirm the push'
-      });
+      return res.status(400).json({ error: 'User approval required', message: 'Set approved: true to confirm' });
+    }
+    if (!repoId || !branchName || !title) {
+      return res.status(400).json({ error: 'repoId, branchName, and title are required' });
     }
 
-    if (!repoId) return res.status(400).json({ error: 'repoId required' });
+    const { token, owner, repoName, repo } = await getGitHubContext(req.user.id, repoId);
+    const gitService = new GitHubCommitService(token);
+    const pr = await gitService.openPullRequest(owner, repoName, branchName, repo.default_branch, title, body);
 
-    const userData = await getGitHubToken(req.user.id);
-    const { data: repo } = await supabase
-      .from('repositories')
-      .select('*')
-      .eq('id', repoId)
-      .eq('user_id', req.user.id)
-      .single();
-
-    if (!repo) return res.status(404).json({ error: 'Repository not found' });
-
-    const repoPath = await gitService.getRepoPath(
-      repo.clone_url,
-      repo.repo_name,
-      userData.github_access_token
-    );
-
-    const result = await gitService.push(repoPath, repo.default_branch || 'main');
-
-    // Update last commit date
-    await supabase
-      .from('repositories')
-      .update({ last_scanned_at: new Date().toISOString() })
-      .eq('id', repoId);
-
-    res.json({
-      success: true,
-      pushed: true,
-      branch: repo.default_branch || 'main',
-      repo: repo.repo_name
-    });
+    res.json({ success: true, ...pr });
   } catch (err) {
-    console.error('[Git] Push error:', err);
+    console.error('[Git] Pull request error:', err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// POST /api/git/commit-and-push - Commit and push in one action (requires approval)
-router.post('/commit-and-push', authenticate, async (req, res) => {
-  try {
-    const { repoId, commitMessage, approved } = req.body;
-
-    if (!approved) {
-      return res.status(400).json({
-        requiresApproval: true,
-        message: 'This action will commit and push changes to GitHub. Set approved: true to confirm.'
-      });
-    }
-
-    if (!repoId || !commitMessage) {
-      return res.status(400).json({ error: 'repoId and commitMessage required' });
-    }
-
-    const userData = await getGitHubToken(req.user.id);
-    const { data: repo } = await supabase
-      .from('repositories')
-      .select('*')
-      .eq('id', repoId)
-      .eq('user_id', req.user.id)
-      .single();
-
-    if (!repo) return res.status(404).json({ error: 'Repository not found' });
-
-    const repoPath = await gitService.getRepoPath(
-      repo.clone_url,
-      repo.repo_name,
-      userData.github_access_token
-    );
-
-    await gitService.stageAll(repoPath);
-
-    const commitResult = await gitService.commit(
-      repoPath,
-      commitMessage,
-      userData.name || userData.github_username,
-      userData.email || `${userData.github_username}@users.noreply.github.com`
-    );
-
-    const pushResult = await gitService.push(repoPath, repo.default_branch || 'main');
-
-    await supabase.from('commits').insert({
-      user_id: req.user.id,
-      repo_id: repoId,
-      commit_hash: commitResult.commit,
-      commit_message: commitMessage,
-      pushed: true,
-      committed_at: new Date().toISOString()
-    });
-
-    res.json({
-      success: true,
-      commit: commitResult.commit,
-      message: commitMessage,
-      pushed: true,
-      branch: repo.default_branch || 'main',
-      repo: repo.repo_name
-    });
-  } catch (err) {
-    console.error('[Git] Commit+Push error:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// GET /api/git/history - Get commit history
+// GET /api/git/history - Get commit history from our own log (not GitHub)
 router.get('/history', authenticate, async (req, res) => {
   try {
     const { data, error } = await supabase

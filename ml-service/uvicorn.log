@@ -1,0 +1,8 @@
+INFO:     Started server process [18032]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:5001 (Press CTRL+C to quit)
+INFO:     127.0.0.1:65485 - "GET /health HTTP/1.1" 200 OK
+C:\Users\RISIKESH T\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\sklearn\utils\validation.py:2827: UserWarning: X does not have valid feature names, but GradientBoostingRegressor was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:56957 - "POST /predict HTTP/1.1" 200 OK
