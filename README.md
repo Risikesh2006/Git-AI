@@ -159,7 +159,7 @@ Every scan, generated plan, and git action is logged, viewable in the **History*
 | Backend | Node.js, Express.js |
 | Database | Supabase (PostgreSQL) |
 | Auth | Supabase OAuth (GitHub) |
-| Machine Learning | Python, scikit-learn, Random Forest — served by a small FastAPI microservice (`ml-service/`) |
+| Machine Learning | Python, scikit-learn, Random Forest — invoked as a subprocess (`ml/predict.py`) from the backend, no separate service to run |
 | Generative AI | LM Studio (local, tried first) with Claude Sonnet 5 as a cloud fallback via the Anthropic SDK |
 | Git Automation | GitHub Contents + Git Data API (no local clone — stateless backend) |
 | Observability | pino structured logging, Sentry (optional, `SENTRY_DSN`) |
@@ -208,19 +208,17 @@ Git AI/
 │   ├── scanner.py                  # GitHub repository scanner
 │   ├── feature_engineering.py      # ML feature preparation
 │   ├── train.py                    # Random Forest / Gradient Boosting training
-│   ├── predict.py                  # Priority prediction (CLI)
+│   ├── predict.py                  # Priority prediction (CLI — called as a subprocess by the backend)
 │   ├── test_predict.py             # Regression test
 │   └── dataset/
 │       └── training_data.csv       # Training dataset
-│
-├── ml-service/                     # FastAPI microservice serving the trained model
-│   └── main.py                     # /predict, /health
 │
 ├── models/                         # Trained ML model artifacts (generated, not committed)
 │
 ├── supabase/migrations/            # Versioned schema changes (Supabase CLI)
 ├── supabase_schema.sql             # Base database schema
-├── render.yaml                     # Backend + ML service deploy blueprint (Render)
+├── Dockerfile                      # Single image: Node backend + Python venv for ml/predict.py
+├── render.yaml                     # Backend deploy blueprint (Render, Docker runtime)
 ├── DEPLOYMENT.md                   # Manual account/secrets setup checklist
 └── .github/workflows/              # CI (typecheck/lint/build/test) + deploy triggers
 ```

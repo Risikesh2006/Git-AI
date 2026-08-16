@@ -1,5 +1,7 @@
-## Render Blueprint — deploys the stateless Express backend and the ML scoring
-## microservice as two independent services. Apply via Render's "New Blueprint
+## Render Blueprint — deploys one container (see /Dockerfile) with the Express
+## backend and the ML priority-scoring model together: the backend spawns
+## `python3 ml/predict.py` as a subprocess per scan, so there's no separate
+## always-on ML service to run or wire up. Apply via Render's "New Blueprint
 ## Instance" pointed at this repo. Secrets marked sync: false must be set once
 ## in the Render dashboard after the blueprint is created — they are not
 ## committed here.
@@ -10,12 +12,11 @@
 services:
   - type: web
     name: gitai-backend
-    runtime: node
+    runtime: docker
     plan: starter
     region: oregon
-    rootDir: backend
-    buildCommand: npm ci
-    startCommand: npm start
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     healthCheckPath: /api/health
     autoDeploy: false # deploys are triggered by .github/workflows/deploy.yml after CI passes
     envVars:
@@ -47,28 +48,9 @@ services:
         sync: false
       - key: CLOUD_LLM_MODEL
         value: claude-sonnet-5
-      # `hostport` resolves to Render's internal host:port with no scheme — Render
-      # internal service traffic is always plain HTTP, so this needs an explicit
-      # http:// prefix. Render doesn't support string-templating env values in
-      # the blueprint format, so set this one manually in the dashboard after
-      # first deploy using the value `hostport` resolved to (visible in the
-      # backend service's Environment tab), prefixed with http://.
-      - key: ML_SERVICE_URL
-        sync: false
       - key: JWT_SECRET
         generateValue: true
       - key: TOKEN_ENCRYPTION_KEY
         generateValue: true
       - key: SENTRY_DSN
         sync: false
-
-  - type: web
-    name: gitai-ml-service
-    runtime: python
-    plan: starter
-    region: oregon
-    rootDir: ml-service
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
-    healthCheckPath: /health
-    autoDeploy: false

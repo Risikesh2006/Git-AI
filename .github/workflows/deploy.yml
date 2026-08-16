@@ -3,11 +3,10 @@ name: Deploy
 # Triggers a redeploy on Render after CI passes on main. Vercel deploys the
 # frontend automatically on its own GitHub integration — no workflow needed here.
 #
-# Requires two repo secrets, set once the Render services exist (Phase 8):
-#   RENDER_BACKEND_DEPLOY_HOOK    — Render "Deploy Hook" URL for the backend service
-#   RENDER_ML_SERVICE_DEPLOY_HOOK — Render "Deploy Hook" URL for ml-service
-# Find both under each Render service's Settings tab. Until these secrets are
-# set, this workflow no-ops (the curl step is skipped) rather than failing.
+# Requires one repo secret, set once the Render service exists:
+#   RENDER_BACKEND_DEPLOY_HOOK — Render "Deploy Hook" URL for the gitai-backend service
+# Find it under the Render service's Settings tab. Until this secret is set,
+# this workflow no-ops (the curl step is skipped) rather than failing.
 
 on:
   workflow_run:
@@ -23,6 +22,3 @@ jobs:
       - name: Trigger backend redeploy
         if: ${{ vars.RENDER_BACKEND_DEPLOY_HOOK != '' || secrets.RENDER_BACKEND_DEPLOY_HOOK != '' }}
         run: curl -fsS -X POST "${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}"
-      - name: Trigger ML service redeploy
-        if: ${{ vars.RENDER_ML_SERVICE_DEPLOY_HOOK != '' || secrets.RENDER_ML_SERVICE_DEPLOY_HOOK != '' }}
-        run: curl -fsS -X POST "${{ secrets.RENDER_ML_SERVICE_DEPLOY_HOOK }}"
