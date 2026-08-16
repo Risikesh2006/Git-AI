@@ -14,3 +14,7 @@ node_modules/
 
 # Next.js
 .next/
+
+# Python
+__pycache__/
+*.pyc

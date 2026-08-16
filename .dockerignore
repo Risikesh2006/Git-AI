@@ -1,0 +1,8 @@
+node_modules
+**/node_modules
+.env
+**/.env
+.git
+.next
+**/__pycache__
+frontend
