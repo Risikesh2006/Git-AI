@@ -11,7 +11,7 @@
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](#prerequisites)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](#tech-stack)
 [![Status](https://img.shields.io/badge/status-active--development-orange)](#roadmap)
-
+ 
 </div>
 
 ---
